@@ -44,9 +44,10 @@ class Security():
 			raise Exception('Hashing algorithm '+hashAlgo+' not recognized.')
 	#
 	#Method for encrypting data
-	#using a specified algorithm
+	#using a specified public key
 	#
-	def encrypt(data, EncryptAlgo):
-		return ''
+	def encrypt(data, pathToKeys):
+		crypter = keyczar.Crypter.Read();
+        	return crypter.Encrypt(data);
 if __name__=='__main__':
 	main()
