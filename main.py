@@ -8,7 +8,7 @@ import hashlib
 import keyczar.keyczar
 def main():
 	sec = Security()
-	print(sec.hash("hello", 'sha256'))
+	print(sec.encrypt("hello", '/home/zmahlaza/Documents/uct/nis/project/sample_keys'))
 
 #
 # Security utility
@@ -46,8 +46,8 @@ class Security():
 	#Method for encrypting data
 	#using a specified public key
 	#
-	def encrypt(data, pathToKeys):
-		crypter = keyczar.Crypter.Read();
+	def encrypt(self,data, pathToKeys):
+		crypter = keyczar.keyczar.Crypter.Read(pathToKeys);
         	return crypter.Encrypt(data);
 if __name__=='__main__':
 	main()
