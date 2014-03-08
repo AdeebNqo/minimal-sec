@@ -5,10 +5,11 @@
 import re
 import smtpd
 import hashlib
-import Crypto
+from Crypto.Cipher import AES
+from Crypto.Cipher import Blowfish
 def main():
 	sec = Security()
-	print(sec.encrypt('a','a','a'))
+	print(sec.encrypt('asasasasasasasas','AES','aaaaaaaaaaaaaaaa'))
 
 #
 # Security utility
@@ -46,7 +47,32 @@ class Security():
 	#Method for encrypting data
 	#using a specified public key
 	#
-	def encrypt(self,data, EncryptAlgo, passphrase):
-        	return ''
+	def encrypt(self,data, EncryptAlgo, key):
+		if (EncryptAlgo=='AES'):
+			aesEncrypter = AES.new(key)
+			return aesEncrypter.encrypt(data)
+		elif (EncryptAlgo=='Blowfish'):
+			blowfishEncrypter = Blowfish.new(key)
+			return blowfishEncrypter.encrypt(data)
+		elif (EncryptAlgo=='DES'):
+			desEncrypter = DES.new(key)
+			return desEncrypter(data)
+		else:
+			raise Exception('Could not encrypt data.'+DecryptAlgo+' is not supported')
+	#
+	# Method for decrypting 
+	#
+	def decrypt(self,data, DecryptAlgo, key):
+		if (DecryptAlgo=='AES'):
+			aesDecrypter = AES.new(key)
+			return aesDecrypter.decrypt(data)
+		elif (DecryptAlgo=='Blowfish');
+			blowfishDecrypter = Blowfish.new(key)
+			return blowfishDecrypter.decrypt(data)
+		elif (DecryptAlgo=='DES'):
+			desDecrypter = DES.new(key)
+			return desDecrypter.decrypter(data)
+		else:
+			raise Exception('Could not decrypt data.'+DecryptAlgo+' is not supported')
 if __name__=='__main__':
 	main()
