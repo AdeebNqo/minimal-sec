@@ -5,6 +5,7 @@
 import re
 import smtpd
 import hashlib
+import keyczar.keyczar
 def main():
 	sec = Security()
 	print(sec.hash("hello", 'sha256'))
@@ -39,15 +40,13 @@ class Security():
 				return hashlib.sha512(data).hexdigest()
 			else:
 				raise Exception('Hashing algorithm '+hashAlgo+' not recognized.')
-			return num
 		else:
 			raise Exception('Hashing algorithm '+hashAlgo+' not recognized.')
-		return ''
 	#
 	#Method for encrypting data
 	#using a specified algorithm
 	#
-	def encrypt(EncryptAlgo):
+	def encrypt(data, EncryptAlgo):
 		return ''
 if __name__=='__main__':
 	main()
