@@ -5,10 +5,10 @@
 import re
 import smtpd
 import hashlib
-import keyczar.keyczar
+import Crypto
 def main():
 	sec = Security()
-	print(sec.encrypt("hello", '/home/zmahlaza/Documents/uct/nis/project/sample_keys'))
+	print(sec.encrypt('a','a','a'))
 
 #
 # Security utility
@@ -46,8 +46,7 @@ class Security():
 	#Method for encrypting data
 	#using a specified public key
 	#
-	def encrypt(self,data, pathToKeys):
-		crypter = keyczar.keyczar.Crypter.Read(pathToKeys);
-        	return crypter.Encrypt(data);
+	def encrypt(self,data, EncryptAlgo, passphrase):
+        	return ''
 if __name__=='__main__':
 	main()
