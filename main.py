@@ -7,10 +7,11 @@ import smtpd
 import hashlib
 from Crypto.Cipher import AES
 from Crypto.Cipher import Blowfish
+
+from server import server
 def main():
 	sec = Security()
-	print(sec.encrypt('asasasasasasasas','AES','aaaaaaaaaaaaaaaa'))
-
+	s = server()
 #
 # Security utility
 #
@@ -66,7 +67,7 @@ class Security():
 		if (DecryptAlgo=='AES'):
 			aesDecrypter = AES.new(key)
 			return aesDecrypter.decrypt(data)
-		elif (DecryptAlgo=='Blowfish');
+		elif (DecryptAlgo=='Blowfish'):
 			blowfishDecrypter = Blowfish.new(key)
 			return blowfishDecrypter.decrypt(data)
 		elif (DecryptAlgo=='DES'):
