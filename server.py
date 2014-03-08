@@ -24,8 +24,8 @@ class server(ServerSocket.BaseRequestHandler):
 			os.mkdir('./data')
 		if (exists==False):
 			#Creating the empty files
-			open('keystore.ks','w').close()
-			open('files.pkl','w').close()
+			open('./data/keystore.ks','w').close()
+			open('./data/files.pkl','w').close()
 		else:
 			#load the stored files
 			files = pickle.load(open('files.pkl','r'))
