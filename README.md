@@ -6,8 +6,8 @@ Practical for securing communications between server and client.
 
 ##ToDo
 
-1. Add both TCP and UDP handler []
-2. Minimal client that can connect to server []
-3. Protocol for handshake []
-4. Protocol for communication []
-5. Keystore and files manipulation []
+- [] Add both TCP and UDP handler
+- [] Minimal client that can connect to server
+- [] Protocol for handshake
+- [] Protocol for communication
+- [] Keystore and files manipulation
