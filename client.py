@@ -7,13 +7,10 @@ class client(object):
 	sockt = None
 	host = None
 	port = 0
-	def __init__(self, host, port, sockettype='tcp'):
+	def __init__(self, host, port):
 		self.host = host
 		self.port = port
-		if (sockettype=='tcp'):
-			self.sockt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		else:
-			self.sockt = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		self.sockt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	def connect(self):
 		self.sockt.connect((self.host, self.port))
 	def disconnect(self):
@@ -21,7 +18,7 @@ class client(object):
 	def send(self,data):
 		self.sockt.send(data)
 if __name__=='__main__':
-	client = client('localhost', 7777, 'tcp')
+	client = client('localhost', 7777)
 	client.connect()
 	client.send('hello')
 	client.disconnect()
