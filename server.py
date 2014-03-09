@@ -9,9 +9,7 @@ import SocketServer
 class server(SocketServer.BaseRequestHandler):
 	files = []
 	keytore =[]
-	sockettype = None
-	def __init__(self, sockettype):
-		self.sockettype = sockettype
+	def __init__(self):
 		exists = False
 		try:
 			items = os.listdir('./data')
@@ -29,36 +27,21 @@ class server(SocketServer.BaseRequestHandler):
 			open('./data/keystore.ks','w').close()
 			open('./data/files.pkl','w').close()
 		else:
-			#load the stored files
-			files = pickle.load(open('files.pkl','r'))
-			#loading stored keys
-			keystore = shelve.open('keystore.ks')
+			try:
+				#load the stored files
+				files = pickle.load(open('./data/files.pkl','r'))
+				#loading stored keys
+				keystore = shelve.open('keystore.ks')
+			except EOFError:
+				#the files are empty
+				files = []
+				keystore =[]
 	def handle(self):
-		if (sockettype=='udp'):
-			print('udp')
-		elif (sockettype=='tcp'):
-			self.data = self.rfile.readline().strip()
-			print('{} says'.format(self.client_address[0]))
-			print(data)
-		else:
-			raise Exception('Cannot handle '+sockettype+' socket.')
+		self.data = self.rfile.readline().strip()
+		print('{} says'.format(self.client_address[0]))
+		print(data)
 		
 if __name__=='__main__':
-	finalserver = None
-	sockettype = None
-	#reading server config
-	#try:
-	try:
-		config = pickle.load('config.pkl')
-		sockettype = config['socket_type']
-	except AttributeError:
-		pass
-	if (sockettype=='udp'):
-		finalserver = SocketServer.UDPServer(('localhost',7777),server('udp'))
-	else:
-		finalserver = SocketServer.TCPServer(('localhost', 7777),server('tcp'))
-	if (finalserver!=None):
-		finalserver.serve_forever()
-	else:
-		raise Exception('Cannot start server. Try setting up config.pkl')
+	#ToDo: read server config
+	finalserver = SocketServer.TCPServer(('localhost', 7777),server, 'tcp')
 	
