@@ -7,7 +7,7 @@ Practical for securing communications between server and client.
 ##ToDo
 - [X] Add both TCP and UDP handler
 - [X] Minimal client that can connect to server
-- [ ] Fix server
+- [X] Fix server
 - [ ] Protocol for handshake
 - [ ] Protocol for communication
 - [ ] Keystore and files manipulation
