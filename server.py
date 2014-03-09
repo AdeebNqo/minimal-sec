@@ -5,8 +5,8 @@
 import shelve
 import pickle
 import os
-import ServerSocket
-class server(ServerSocket.BaseRequestHandler):
+import SocketServer
+class server():
 	files = []
 	keytore =[]
 	def __init__(self):
@@ -31,18 +31,32 @@ class server(ServerSocket.BaseRequestHandler):
 			files = pickle.load(open('files.pkl','r'))
 			#loading stored keys
 			keystore = shelve.open('keystore.ks')
+#
+# Class to handle tcp connections
+#
+class tcpHandler(SocketServer.BaseRequestHandler):
 	def handle(self):
-		print('')
+		print('tcp')
+#
+# Class to handle udp connections
+#
+class udpHandler(SocketServer.BaseRequestHandler):
+	def handle(self):
+		print('udp')
 if __name__=='__main__':
 	finalserver = None
+	sockettype = None
 	#reading server config
 	#try:
-	config = pickle.load('config.pkl')
-	socket_type = config['socket_type']
-	if (socket_type=='udp'):
-		finalserver = ServerSocket.UDPServer((localhost,7777),server)
+	try:
+		config = pickle.load('config.pkl')
+		sockettype = config['socket_type']
+	except AttributeError:
+		pass
+	if (sockettype=='udp'):
+		finalserver = SocketServer.UDPServer(('localhost',7777),udpHandler)
 	else:
-		finalserver = ServerSocket.TCPServer((localhost, 7777),server)
+		finalserver = SocketServer.TCPServer(('localhost', 7777),tcpHandler)
 	if (finalserver!=None):
 		finalserver.serve_forever()
 	else:
