@@ -37,7 +37,9 @@ class server(SocketServer.BaseRequestHandler):
 		if (sockettype=='udp'):
 			print('udp')
 		elif (sockettype=='tcp'):
-			print('tcp')
+			self.data = self.rfile.readline().strip()
+			print('{} says'.format(self.client_address[0]))
+			print(data)
 		else:
 			raise Exception('Cannot handle '+sockettype+' socket.')
 		
