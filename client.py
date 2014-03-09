@@ -16,7 +16,7 @@ class client(object):
 	def disconnect(self):
 		self.sockt.close()
 	def send(self,data):
-		self.sockt.send(data)
+		self.sockt.sendall(data)
 if __name__=='__main__':
 	client = client('localhost', 7777)
 	client.connect()
