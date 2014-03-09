@@ -11,7 +11,7 @@ class client(object):
 	port = 0
 	publickeyLocation = None
 	privatekeyLocation = None
-	username = 'client001'
+	username = 'client002'
 	def __init__(self, host, port):
 		#self.savekeyConfig('./keys','./keys')
 		self.host = host
@@ -23,14 +23,15 @@ class client(object):
 	def connect(self):
 		print('connecting....')
 		self.sockt.connect((self.host, self.port))
+		self.sockt.setblocking(1)
 		print('connected!')
 		#initiate three-way handshake
 		self.send('CONNECT {}'.format(self.username))
-		dataavailable = select.select([self.sockt],[],[])
-		if (dataavailable[0]):
-			response = self.sockt.recv(1024)
-			if (response.startswith('101')):
-				raise Exception('Connection failed 101. Client not recognized')
+		response = self.sockt.recv(1024)
+		if (response.startswith('101')):
+			raise Exception('Connection failed 101. Client not recognized')
+		else:
+			print('response is not an err')
 	def disconnect(self):
 		self.sockt.close()
 	def send(self,data):

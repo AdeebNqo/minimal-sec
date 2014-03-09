@@ -20,12 +20,13 @@ class sockethandler(threading.Thread):
 		threading.Thread.__init__(self)
 	def run(self):
 		data = self.connection.recv(1024).strip()
+		print('server received {}'.format(data))
 		if (data.startswith('CONNECT')):
 			if (data.split()[1] in registeredclients):
 				print('send him something')
 				#do something
 			else:
-				self.request.sendall('101 CONNECT FAILED')		
+				self.connection.sendall('101 CONNECT FAILED')		
 		print(data)
 class server():
 	files = []
