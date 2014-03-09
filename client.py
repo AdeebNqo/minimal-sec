@@ -4,6 +4,7 @@
 #
 import socket
 import pickle
+import select
 class client(object):
 	sockt = None
 	host = None
@@ -25,9 +26,11 @@ class client(object):
 		print('connected!')
 		#initiate three-way handshake
 		self.send('CONNECT {}'.format(self.username))
-		response = self.sockt.recv(1024)
-		if (response.startswith('101')):
-			raise Exception('Connection failed 101. Client not recognized')
+		dataavailable = select.select([self.sockt],[],[])
+		if (dataavailable[0]):
+			response = self.sockt.recv(1024)
+			if (response.startswith('101')):
+				raise Exception('Connection failed 101. Client not recognized')
 	def disconnect(self):
 		self.sockt.close()
 	def send(self,data):

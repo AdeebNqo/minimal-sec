@@ -5,14 +5,33 @@
 import shelve
 import pickle
 import os
-import SocketServer
+import socket
 import random
+import threading
 
 registeredclients = ['client001']
-class server(SocketServer.TCPServer):
+connectedclients = {}
+class sockethandler(threading.Thread):
+	connection = None
+	address = None
+	def __init__(self,conn, addr):
+		self.connection = conn
+		self.address = addr
+		threading.Thread.__init__(self)
+	def run(self):
+		data = self.connection.recv(1024).strip()
+		if (data.startswith('CONNECT')):
+			if (data.split()[1] in registeredclients):
+				print('send him something')
+				#do something
+			else:
+				self.request.sendall('101 CONNECT FAILED')		
+		print(data)
+class server():
 	files = []
 	keytore =[]
-	def __init__(self,address, handler):
+	sockt = None
+	def __init__(self,address):
 		exists = False
 		try:
 			items = os.listdir('./data')
@@ -39,20 +58,20 @@ class server(SocketServer.TCPServer):
 				#the files are empty
 				files = []
 				keystore =[]
-		SocketServer.TCPServer.__init__(self, address, handler)
-class serverhandler(SocketServer.BaseRequestHandler):
+		self.sockt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.sockt.bind(address)
+		self.sockt.listen(1)
 	def handle(self):
-		print('{} just connected'.format(self.client_address[0]))
-		data = self.request.recv(1024).strip()
-		if (data.startswith('CONNECT')):
-			if (data.split()[1] in registeredclients):
-				print('send him something')
-				#do something
-			else:
-				self.request.sendall('101 CONNECT FAILED')		
-		print(data)
+		while 1:
+			conn, addr = self.sockt.accept()
+			print('{} just connected.'.format(addr))
+			connectedclients[addr] = conn
+			handler = sockethandler(conn, addr)
+			handler.start()
 		
 if __name__=='__main__':
 	#ToDo: read server config
-	finalserver = server(('localhost', 7777),serverhandler)
-	finalserver.serve_forever()
+	addr = ('localhost',7777)
+	servr = server(addr)
+	servr.handle()
+	
