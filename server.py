@@ -6,6 +6,9 @@ import shelve
 import pickle
 import os
 import SocketServer
+import random
+
+registeredclients = ['client001']
 class server(SocketServer.TCPServer):
 	files = []
 	keytore =[]
@@ -41,7 +44,12 @@ class serverhandler(SocketServer.BaseRequestHandler):
 	def handle(self):
 		print('{} just connected'.format(self.client_address[0]))
 		data = self.request.recv(1024).strip()
-		print('{} says'.format(self.client_address[0]))
+		if (data.startswith('CONNECT')):
+			if (data.split()[1] in registeredclients):
+				print('send him something')
+				#do something
+			else:
+				self.request.sendall('101 CONNECT FAILED')		
 		print(data)
 		
 if __name__=='__main__':

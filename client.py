@@ -10,6 +10,7 @@ class client(object):
 	port = 0
 	publickeyLocation = None
 	privatekeyLocation = None
+	username = 'client001'
 	def __init__(self, host, port):
 		#self.savekeyConfig('./keys','./keys')
 		self.host = host
@@ -19,9 +20,14 @@ class client(object):
 		self.publickeyLocation = config['publickey']
 		self.privatekeyLocation = config['privatekey']
 	def connect(self):
+		print('connecting....')
 		self.sockt.connect((self.host, self.port))
+		print('connected!')
 		#initiate three-way handshake
-		print('keys are in {} folder'.format(self.publickeyLocation))
+		self.send('CONNECT {}'.format(self.username))
+		response = self.sockt.recv(1024)
+		if (response.startswith('101')):
+			raise Exception('Connection failed 101. Client not recognized')
 	def disconnect(self):
 		self.sockt.close()
 	def send(self,data):
