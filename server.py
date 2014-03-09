@@ -54,9 +54,9 @@ if __name__=='__main__':
 	except AttributeError:
 		pass
 	if (sockettype=='udp'):
-		finalserver = SocketServer.UDPServer(('localhost',7777),server)
+		finalserver = SocketServer.UDPServer(('localhost',7777),server('udp'))
 	else:
-		finalserver = SocketServer.TCPServer(('localhost', 7777),server)
+		finalserver = SocketServer.TCPServer(('localhost', 7777),server('tcp'))
 	if (finalserver!=None):
 		finalserver.serve_forever()
 	else:
