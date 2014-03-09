@@ -18,7 +18,7 @@ class client(object):
 		self.sockt.connect((self.host, self.port))
 	def disconnect(self):
 		self.sockt.close()
-	def send(data):
+	def send(self,data):
 		self.sockt.send(data)
 if __name__=='__main__':
 	client = client('localhost', 7777, 'tcp')
