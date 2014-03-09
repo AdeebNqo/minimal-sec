@@ -9,10 +9,10 @@ Practical for securing communications between server and client.
 - [X] Minimal client that can connect to server
 - [X] Fix server
 - [ ] Entity authentication protocol
-- [ ] Key exchange protocol
 - [ ] Protocol for file transfer
 - [ ] Keystore and files manipulation on server
 - [ ] Setup config file in server
+- [ ] Improve entity authentication by using passphrases. Write libray to collect large corpus that gets updated regularly
 
 ##Deprecated
 - UDP support
