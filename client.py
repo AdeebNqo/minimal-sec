@@ -37,7 +37,7 @@ class client(object):
 		else:
 			print('wait for server response...')
 			#decode authtoken from server
-			authtoken = self.sockt.recv(1024)
+			authtoken = self.sockt.recv(10)
 			print('server responded with token: {}'.format(authtoken))
 			privkey = open('{}/client/client'.format(privatekeyLocation),'r').read()
 			rsakey = RSA.importKey(privkey)
@@ -54,7 +54,7 @@ class client(object):
 		config['privatekey'] = privatekey
 		pickle.dump(config, open('./data/client_config.pkl','w'))
 if __name__=='__main__':
-	client = client('localhost', 7779)
+	client = client('localhost', 7777)
 	client.connect()
 	#client.send('hello')
 	client.disconnect()

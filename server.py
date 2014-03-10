@@ -10,9 +10,13 @@ import random
 import threading
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
+import signal
+import sys
 
+runningthreads = []
 registeredclients = {}
 connectedclients = {}
+server_up = True
 class sockethandler(threading.Thread):
 	connection = None
 	address = None
@@ -22,6 +26,8 @@ class sockethandler(threading.Thread):
 		self.address = addr
 		self.connection.setblocking(1)
 		threading.Thread.__init__(self)
+	def stop(self):
+		super(sockethandler, self).stop();
 	def run(self):
 		while 1:
 			print('waiting for data...')
@@ -75,16 +81,31 @@ class server():
 		self.sockt.bind(address)
 		self.sockt.listen(1)
 	def handle(self):
-		while 1:
+		while server_up:
 			conn, addr = self.sockt.accept()
 			print('{} just connected.'.format(addr))
 			connectedclients[addr] = conn
 			handler = sockethandler(conn, addr)
+			runningthreads.append(handler)
 			handler.start()
+
+#
+#Method to capture cntrl-c call to server
+#
+def signal_handler(signal, frame):
+	for thread in runningthreads:
+		try:		
+			thread.stop()
+		except SystemExit:
+			pass
+	server_up = False
+	sys.exit(0)
 		
 if __name__=='__main__':
+	#handling contrl-c
+	signal.signal(signal.SIGINT, signal_handler)
 	#ToDo: read server config
-	addr = ('localhost',7779)
+	addr = ('localhost',7777)
 	servr = server(addr)
 	servr.handle()
 	
