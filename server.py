@@ -8,26 +8,42 @@ import os
 import socket
 import random
 import threading
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_v1_5
 
-registeredclients = ['client001']
+registeredclients = {}
 connectedclients = {}
 class sockethandler(threading.Thread):
 	connection = None
 	address = None
 	def __init__(self,conn, addr):
+		registeredclients['client001'] = '/home/zmahlaza/Documents/uct/nis/project/keys/server/client001.pub'#registering default client
 		self.connection = conn
 		self.address = addr
+		self.connection.setblocking(1)
 		threading.Thread.__init__(self)
 	def run(self):
-		data = self.connection.recv(1024).strip()
-		print('server received {}'.format(data))
-		if (data.startswith('CONNECT')):
-			if (data.split()[1] in registeredclients):
-				print('send him something')
-				#do something
-			else:
-				self.connection.sendall('101 CONNECT FAILED')		
-		print(data)
+		while 1:
+			print('waiting for data...')
+			data = self.connection.recv(1024).strip()
+			print('server received {}'.format(data))
+			if (data.startswith('CONNECT')):
+				clientname = data.split()[1]
+				if (clientname in registeredclients.keys()):
+					print('client is registered.')
+					token = "kneel before zod"
+					#encrypting
+					pubkey = open(registeredclients[clientname],'r').read()
+					rsakey = RSA.importKey(pubkey)
+					rsakey = PKCS1_v1_5.new(rsakey)
+					authtoken = rsakey.encrypt(token)
+					print('sending rsa encrypted token.')
+					self.connection.sendall(authtoken)
+					print('sent authtoken')
+					#Retrieve token again from client
+				
+				else:
+					self.connection.sendall('101 CONNECT FAILED')
 class server():
 	files = []
 	keytore =[]
@@ -37,12 +53,8 @@ class server():
 		try:
 			items = os.listdir('./data')
 			tmpcount = 0
-			for item in items:
-				if (item=='keystore.ks' or item=='files.pkl'):
-					tmpcount=tmpcount+1
-					if (tmpcount==2):
-						exists=True
-						break
+			if ('keystore.ks' in items and 'files.pkl' in items):
+				exists = True
 		except OSError:
 			os.mkdir('./data')
 		if (exists==False):
@@ -72,7 +84,7 @@ class server():
 		
 if __name__=='__main__':
 	#ToDo: read server config
-	addr = ('localhost',7777)
+	addr = ('localhost',7779)
 	servr = server(addr)
 	servr.handle()
 	

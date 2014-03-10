@@ -5,13 +5,16 @@
 import socket
 import pickle
 import select
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_v1_5
+
 class client(object):
 	sockt = None
 	host = None
 	port = 0
 	publickeyLocation = None
 	privatekeyLocation = None
-	username = 'client002'
+	username = 'client001'
 	def __init__(self, host, port):
 		self.savekeyConfig('./keys','./keys')
 		self.host = host
@@ -31,7 +34,15 @@ class client(object):
 		if (response.startswith('101')):
 			raise Exception('Connection failed 101. Client not recognized')
 		else:
-			print('response is not an err')
+			print('waiting for token...')
+			#decode authtoken from server
+			authtoken = self.sockt.recv(1024)
+			print('recieved token, {}'.format(authtoken))
+			privkey = open('{}/client/client'.format(privatekeyLocation),'r').read()
+			rsakey = RSA.importKey(privkey)
+			rsakey = PKCS1_v1_5.new(rsakey)
+			token = rsakey.decrypt(authtoken)
+			print(token)
 	def disconnect(self):
 		self.sockt.close()
 	def send(self,data):
@@ -42,7 +53,7 @@ class client(object):
 		config['privatekey'] = privatekey
 		pickle.dump(config, open('./data/client_config.pkl','w'))
 if __name__=='__main__':
-	client = client('localhost', 7777)
+	client = client('localhost', 7779)
 	client.connect()
 	client.send('hello')
 	client.disconnect()
