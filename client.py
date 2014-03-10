@@ -27,22 +27,23 @@ class client(object):
 		print('connecting....')
 		self.sockt.connect((self.host, self.port))
 		self.sockt.setblocking(1)
-		print('connected!')
+		print('connection established')
+		print('initiating 3 way handshake...')
 		#initiate three-way handshake
 		self.send('CONNECT {}'.format(self.username))
 		response = self.sockt.recv(1024)
 		if (response.startswith('101')):
 			raise Exception('Connection failed 101. Client not recognized')
 		else:
-			print('waiting for token...')
+			print('wait for server response...')
 			#decode authtoken from server
 			authtoken = self.sockt.recv(1024)
-			print('recieved token, {}'.format(authtoken))
+			print('server responded with token: {}'.format(authtoken))
 			privkey = open('{}/client/client'.format(privatekeyLocation),'r').read()
 			rsakey = RSA.importKey(privkey)
 			rsakey = PKCS1_v1_5.new(rsakey)
 			token = rsakey.decrypt(authtoken)
-			print(token)
+			print('the decrypted token is {} '.format(token))
 	def disconnect(self):
 		self.sockt.close()
 	def send(self,data):
@@ -55,5 +56,5 @@ class client(object):
 if __name__=='__main__':
 	client = client('localhost', 7779)
 	client.connect()
-	client.send('hello')
+	#client.send('hello')
 	client.disconnect()

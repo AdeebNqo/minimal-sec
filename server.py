@@ -38,7 +38,7 @@ class sockethandler(threading.Thread):
 					rsakey = PKCS1_v1_5.new(rsakey)
 					authtoken = rsakey.encrypt(token)
 					print('sending rsa encrypted token.')
-					self.connection.sendall(authtoken)
+					self.connection.send('{}\n'.format(authtoken))
 					print('sent authtoken')
 					#Retrieve token again from client
 				
