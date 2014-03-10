@@ -13,7 +13,7 @@ class client(object):
 	privatekeyLocation = None
 	username = 'client002'
 	def __init__(self, host, port):
-		#self.savekeyConfig('./keys','./keys')
+		self.savekeyConfig('./keys','./keys')
 		self.host = host
 		self.port = port
 		self.sockt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
