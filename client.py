@@ -37,14 +37,20 @@ class client(object):
 		if (response.startswith('101')):
 			raise Exception('Connection failed 101. Client not recognized')
 		else:
+			#decrypting token
 			authtoken = base64.b64decode(response)
-			print('after while')
 			print('server responded with token: {}'.format(authtoken))
 			privkey = open('{}/client/client'.format(self.privatekeyLocation),'r').read()
 			rsakey = RSA.importKey(privkey)
 			rsakey = PKCS1_v1_5.new(rsakey)
 			token = rsakey.decrypt(authtoken, -1)
 			print('the decrypted token is {} '.format(token))
+			#encrypting with server public keys
+			pubkey = open('{}/client/server.pub'.format(self.publickeyLocation)).read()
+			prsakey = RSA.importKey(publickey)
+			prsakey = PKCS1_v1_5.new(prsakey)
+			token = prsakey.encrypt(token)
+			send(base64.b64encode(token))
 	def disconnect(self):
 		self.sockt.close()
 	def send(self,data):

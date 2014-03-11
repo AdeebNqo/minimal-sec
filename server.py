@@ -47,7 +47,9 @@ class sockethandler(threading.Thread):
 					self.connection.sendall(authtoken)
 					print('sent authtoken')
 					#Retrieve token again from client
-				
+					rtoken = self.connection.recv(1024).strip()
+					rtoken = base64.b64decode(rtoken)
+					print('client token {} has been recieved.'.format(rtoken))
 				else:
 					self.connection.sendall('101 CONNECT FAILED')
 	def getclientresponse(self):
