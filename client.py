@@ -17,7 +17,9 @@ class client(object):
 	publickeyLocation = None
 	privatekeyLocation = None
 	username = 'client001'
+	security = None
 	def __init__(self, host, port):
+		security = Security()
 		self.savekeyConfig('./keys','./keys')
 		self.host = host
 		self.port = port
@@ -57,6 +59,8 @@ class client(object):
 			while (inputv!='q'):
 				inputv = input('location of folder to transfer:')
 				File = open(inputv,'r')
+				line = File.readline()
+				ID = line[0:line.find('-')]
 				
 	def disconnect(self):
 		self.sockt.close()
