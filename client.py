@@ -5,6 +5,7 @@
 import socket
 import pickle
 import select
+import base64
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
 
@@ -36,23 +37,13 @@ class client(object):
 		if (response.startswith('101')):
 			raise Exception('Connection failed 101. Client not recognized')
 		else:
-			#decode authtoken from server
-			authtoken = ''
-			print(self.sockt.getsockname())
-			print('before while')
-			while 1:
-				print('inside while loop')
-				data = self.sockt.recv(1).strip()
-				if data:				
-					authtoken = authtoken+data
-				else:
-					break
+			authtoken = base64.b64decode(response)
 			print('after while')
 			print('server responded with token: {}'.format(authtoken))
-			privkey = open('{}/client/client'.format(privatekeyLocation),'r').read()
+			privkey = open('{}/client/client'.format(self.privatekeyLocation),'r').read()
 			rsakey = RSA.importKey(privkey)
 			rsakey = PKCS1_v1_5.new(rsakey)
-			token = rsakey.decrypt(authtoken)
+			token = rsakey.decrypt(authtoken, -1)
 			print('the decrypted token is {} '.format(token))
 	def disconnect(self):
 		self.sockt.close()

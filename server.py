@@ -50,6 +50,16 @@ class sockethandler(threading.Thread):
 				
 				else:
 					self.connection.sendall('101 CONNECT FAILED')
+	def getclientresponse(self):
+		response = ''
+		while 1:
+			data = self.connection.recv(1024)
+			if data:
+				response = response+data
+			else:
+				break
+			
+
 class server():
 	files = []
 	keytore =[]
