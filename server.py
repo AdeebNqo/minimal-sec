@@ -43,8 +43,8 @@ class sockethandler(threading.Thread):
 					rsakey = RSA.importKey(pubkey)
 					rsakey = PKCS1_v1_5.new(rsakey)
 					authtoken = base64.b64encode(rsakey.encrypt(token))
-					print('sending rsa encrypted token. value is {}'.format(authtoken))
-					self.connection.send(authtoken)
+					print('encrypted token is {}'.format(authtoken))
+					self.connection.sendall(authtoken)
 					print('sent authtoken')
 					#Retrieve token again from client
 				
@@ -91,7 +91,7 @@ class server():
 if __name__=='__main__':
 	#handling contrl-c
 	#ToDo: read server config
-	addr = ('localhost',7777)
+	addr = ('localhost',7778)
 	servr = server(addr)
 	servr.handle()
 	

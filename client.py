@@ -32,20 +32,22 @@ class client(object):
 		#initiate three-way handshake
 		self.send('CONNECT {}'.format(self.username))
 		response = self.sockt.recv(1024).strip()
+		print('server response is {}'.format(response))
 		if (response.startswith('101')):
 			raise Exception('Connection failed 101. Client not recognized')
 		else:
-			print('server sent something. reading...')
-			tokensize = self.sockt.recv(1024).strip()
-			print('token size is {} bytes'.format(tokensize))
 			#decode authtoken from server
 			authtoken = ''
+			print(self.sockt.getsockname())
+			print('before while')
 			while 1:
-				data = self.sockt.recv(1024)
+				print('inside while loop')
+				data = self.sockt.recv(1).strip()
 				if data:				
 					authtoken = authtoken+data
 				else:
 					break
+			print('after while')
 			print('server responded with token: {}'.format(authtoken))
 			privkey = open('{}/client/client'.format(privatekeyLocation),'r').read()
 			rsakey = RSA.importKey(privkey)
@@ -62,7 +64,7 @@ class client(object):
 		config['privatekey'] = privatekey
 		pickle.dump(config, open('./data/client_config.pkl','w'))
 if __name__=='__main__':
-	client = client('localhost', 7777)
+	client = client('localhost', 7778)
 	client.connect()
 	#client.send('hello')
 	client.disconnect()
