@@ -45,12 +45,16 @@ class client(object):
 			rsakey = PKCS1_v1_5.new(rsakey)
 			token = rsakey.decrypt(authtoken, -1)
 			print('the decrypted token is {} '.format(token))
+			print('sending token back to server...')
 			#encrypting with server public keys
 			pubkey = open('{}/client/server.pub'.format(self.publickeyLocation)).read()
-			prsakey = RSA.importKey(publickey)
+			prsakey = RSA.importKey(pubkey)
 			prsakey = PKCS1_v1_5.new(prsakey)
 			token = prsakey.encrypt(token)
-			send(base64.b64encode(token))
+			self.send(base64.b64encode(token))
+			print('done.')
+			while 1:
+				i=1
 	def disconnect(self):
 		self.sockt.close()
 	def send(self,data):

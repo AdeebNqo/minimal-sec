@@ -19,8 +19,9 @@ server_up = True
 class sockethandler(threading.Thread):
 	connection = None
 	address = None
+	connection_up = True
 	def __init__(self,conn, addr):
-		registeredclients['client001'] = '/home/zmahlaza/Documents/uct/nis/project/keys/server/client001.pub'#registering default client
+		registeredclients['client001'] = '{}/keys/server/client001.pub'.format(os.getcwd())#registering default client
 		self.connection = conn
 		self.address = addr
 		self.connection.setblocking(1)
@@ -46,20 +47,28 @@ class sockethandler(threading.Thread):
 					print('encrypted token is {}'.format(authtoken))
 					self.connection.sendall(authtoken)
 					print('sent authtoken')
+					print('waiting for client response...')
 					#Retrieve token again from client
 					rtoken = self.connection.recv(1024).strip()
+					print('client has responded')
 					rtoken = base64.b64decode(rtoken)
-					print('client token {} has been recieved.'.format(rtoken))
+					privkey = open('{}/keys/server/server'.format(os.getcwd()),'r').read()
+					prsakey = RSA.importKey(privkey)
+					prsakey = PKCS1_v1_5.new(prsakey)
+					rtoken = prsakey.decrypt(rtoken,-1)
+					print('client responded with {}'.format(rtoken))
+					if (rtoken==-1):
+						self.connection.close()
+						raise Execption('Decryption of client token failed.')
+					else:
+						if (rtoken==token):
+							print('entity authentication successful.')
+						else:
+							print('entity authentication unsuccessful')
+							self.connection_up = False
+							self.connection.close()
 				else:
 					self.connection.sendall('101 CONNECT FAILED')
-	def getclientresponse(self):
-		response = ''
-		while 1:
-			data = self.connection.recv(1024)
-			if data:
-				response = response+data
-			else:
-				break
 			
 
 class server():
