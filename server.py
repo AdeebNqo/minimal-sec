@@ -10,10 +10,9 @@ import random
 import threading
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
-import signal
 import sys
+import base64
 
-runningthreads = []
 registeredclients = {}
 connectedclients = {}
 server_up = True
@@ -26,6 +25,7 @@ class sockethandler(threading.Thread):
 		self.address = addr
 		self.connection.setblocking(1)
 		threading.Thread.__init__(self)
+		self.daemon = True
 	def stop(self):
 		super(sockethandler, self).stop();
 	def run(self):
@@ -42,9 +42,9 @@ class sockethandler(threading.Thread):
 					pubkey = open(registeredclients[clientname],'r').read()
 					rsakey = RSA.importKey(pubkey)
 					rsakey = PKCS1_v1_5.new(rsakey)
-					authtoken = rsakey.encrypt(token)
-					print('sending rsa encrypted token.')
-					self.connection.send('{}\n'.format(authtoken))
+					authtoken = base64.b64encode(rsakey.encrypt(token))
+					print('sending rsa encrypted token. value is {}'.format(authtoken))
+					self.connection.send(authtoken)
 					print('sent authtoken')
 					#Retrieve token again from client
 				
@@ -86,24 +86,10 @@ class server():
 			print('{} just connected.'.format(addr))
 			connectedclients[addr] = conn
 			handler = sockethandler(conn, addr)
-			runningthreads.append(handler)
 			handler.start()
-
-#
-#Method to capture cntrl-c call to server
-#
-def signal_handler(signal, frame):
-	for thread in runningthreads:
-		try:		
-			thread.stop()
-		except SystemExit:
-			pass
-	server_up = False
-	sys.exit(0)
 		
 if __name__=='__main__':
 	#handling contrl-c
-	signal.signal(signal.SIGINT, signal_handler)
 	#ToDo: read server config
 	addr = ('localhost',7777)
 	servr = server(addr)
