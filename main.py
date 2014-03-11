@@ -48,7 +48,7 @@ class Security():
 	#Method for encrypting data
 	#using a specified public key
 	#
-	def encrypt(self,data, EncryptAlgo, key):
+	def encrypt(self,data, EncryptAlgo, key, mode, padding):
 		if (EncryptAlgo=='AES'):
 			aesEncrypter = AES.new(key)
 			return aesEncrypter.encrypt(data)
@@ -63,7 +63,7 @@ class Security():
 	#
 	# Method for decrypting 
 	#
-	def decrypt(self,data, DecryptAlgo, key):
+	def decrypt(self,data, DecryptAlgo, key, mode, padding):
 		if (DecryptAlgo=='AES'):
 			aesDecrypter = AES.new(key)
 			return aesDecrypter.decrypt(data)

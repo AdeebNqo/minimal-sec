@@ -8,6 +8,7 @@ import select
 import base64
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
+from main import Security
 
 class client(object):
 	sockt = None
@@ -52,9 +53,11 @@ class client(object):
 			prsakey = PKCS1_v1_5.new(prsakey)
 			token = prsakey.encrypt(token)
 			self.send(base64.b64encode(token))
-			print('done.')
-			while 1:
-				i=1
+			inputv = ''			
+			while (inputv!='q'):
+				inputv = input('location of folder to transfer:')
+				File = open(inputv,'r')
+				
 	def disconnect(self):
 		self.sockt.close()
 	def send(self,data):
