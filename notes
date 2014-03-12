@@ -2,4 +2,4 @@ The format for metadata of the keyczar key pair can be found here:
 http://code.google.com/p/keyczar/wiki/KeyMetadata
 
 PKC5 works as follows, according to http://www.chilkatsoft.com/faq/PKCS5_Padding.html:
-PKCS#5 padding works as follows: the bytes remaining to fill a block are assigned a number, which is the number of bytes that were added to fill the block. For instance, if we have an 16-byte block, and only 11 bytes are filled, then we have 5 bytes to pad. Those 5 bytes are all assigned the value "5", for the 5 bytes of padding. 
+PKCS#5 padding works as follows: the bytes remaining to fill a block are assigned a number, which is the number of bytes that were added to fill the block. For instance, if we have an 16-byte block, and only 11 bytes are filled, then we have 5 bytes to pad. Those 5 bytes are all assigned the value "5", for the 5 bytes of padding.

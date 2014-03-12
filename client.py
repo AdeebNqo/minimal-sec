@@ -6,10 +6,13 @@ import socket
 import pickle
 import select
 import base64
+import sys
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
 from security import security
 from Crypto.Cipher import AES
+from Crypto import Random
+blocksize = 16 #Block size for the encryption
 
 class client(object):
 	sockt = None
@@ -60,11 +63,19 @@ class client(object):
 			while (inputv!='q'):
 				inputv = input('location of folder to transfer:')
 				File = open(inputv,'r')
-				line = File.readline()
-				dashpos = line.find('-') #Dash position
-				ID = line[0:dashpos]
-				DETAILS = line[dashpos+1:]
-				print(self.security.encrypt(DETAILS,'AES', 'thisisakey',AES.MODE_CBC,'thisarandomstring'))
+				self.sendFile(File)
+	def sendFile(File):
+		line = File.readline()
+		dashpos = line.find('-') #Dash position
+		ID = line[0:dashpos]
+		DETAILS = line[dashpos+1:]
+		iv = Random.new().read(AES.block_size);
+		base64.b64(encodeself.security.encrypt(self.pad(DETAILS),'AES', self.pad('thisisakey'), AES.MODE_CBC, iv))
+	def pad(self,data):
+		rem = length = 16 - (len(data) % 16)
+		for i in range(rem):
+			data=data+str(rem)
+		return data
 	def disconnect(self):
 		self.sockt.close()
 	def send(self,data):
