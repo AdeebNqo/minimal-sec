@@ -9,6 +9,7 @@ import base64
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
 from main import Security
+from Crypto.Cipher import AES
 
 class client(object):
 	sockt = None
@@ -19,7 +20,7 @@ class client(object):
 	username = 'client001'
 	security = None
 	def __init__(self, host, port):
-		security = Security()
+		self.security = Security()
 		self.savekeyConfig('./keys','./keys')
 		self.host = host
 		self.port = port
@@ -61,7 +62,7 @@ class client(object):
 				File = open(inputv,'r')
 				line = File.readline()
 				ID = line[0:line.find('-')]
-				
+				print(self.security.encrypt('AES', 'thisisakey',AES.MODE_CBC,'thisarandomstring'))
 	def disconnect(self):
 		self.sockt.close()
 	def send(self,data):

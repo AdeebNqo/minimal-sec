@@ -57,7 +57,7 @@ class Security():
 			return blowfishEncrypter.encrypt(data)
 		elif (EncryptAlgo=='DES'):
 			desEncrypter = DES.new(key)
-			return desEncrypter(data)
+			return desEncrypter.encrypt(data)
 		else:
 			raise Exception('Could not encrypt data.'+DecryptAlgo+' is not supported')
 	#
