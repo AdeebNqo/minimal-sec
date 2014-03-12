@@ -61,8 +61,10 @@ class client(object):
 				inputv = input('location of folder to transfer:')
 				File = open(inputv,'r')
 				line = File.readline()
-				ID = line[0:line.find('-')]
-				print(self.security.encrypt('AES', 'thisisakey',AES.MODE_CBC,'thisarandomstring'))
+				dashpos = line.find('-') #Dash position
+				ID = line[0:dashpos]
+				DETAILS = line[dashpos+1:]
+				print(self.security.encrypt(DETAILS,'AES', 'thisisakey',AES.MODE_CBC,'thisarandomstring'))
 	def disconnect(self):
 		self.sockt.close()
 	def send(self,data):
