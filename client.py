@@ -64,18 +64,13 @@ class client(object):
 				inputv = input('location of folder to transfer:')
 				File = open(inputv,'r')
 				self.sendFile(File)
-	def sendFile(File):
+	def sendFile(self,File):
 		line = File.readline()
 		dashpos = line.find('-') #Dash position
 		ID = line[0:dashpos]
 		DETAILS = line[dashpos+1:]
 		iv = Random.new().read(AES.block_size);
-		base64.b64(encodeself.security.encrypt(self.pad(DETAILS),'AES', self.pad('thisisakey'), AES.MODE_CBC, iv))
-	def pad(self,data):
-		rem = length = 16 - (len(data) % 16)
-		for i in range(rem):
-			data=data+str(rem)
-		return data
+		self.send('{0}{1}{2}'.format(ID,base64.b64encode(self.security.encrypt(DETAILS,'AES', 'thisisakey', AES.MODE_CBC, iv)),self.security.hash('{0}{1}'.format(ID,DETAILS),'sha224')))
 	def disconnect(self):
 		self.sockt.close()
 	def send(self,data):
