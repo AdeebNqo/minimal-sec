@@ -8,7 +8,7 @@ import select
 import base64
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
-from main import Security
+from security import security
 from Crypto.Cipher import AES
 
 class client(object):
@@ -20,7 +20,7 @@ class client(object):
 	username = 'client001'
 	security = None
 	def __init__(self, host, port):
-		self.security = Security()
+		self.security = security()
 		self.savekeyConfig('./keys','./keys')
 		self.host = host
 		self.port = port

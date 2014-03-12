@@ -1,21 +1,12 @@
-#
+
 # Zola Mahlaza
-# 8 March 2014
+# 12 March 2014
+# Security utility
 #
-import re
-import smtpd
 import hashlib
 from Crypto.Cipher import AES
 from Crypto.Cipher import Blowfish
-
-from server import server
-def main():
-	sec = Security()
-	s = server()
-#
-# Security utility
-#
-class Security():
+class security():
 	#
 	# Method for computing
 	# a hash using a provided algorithm
@@ -48,9 +39,9 @@ class Security():
 	#Method for encrypting data
 	#using a specified public key
 	#
-	def encrypt(self,data, EncryptAlgo, key, mode, padding):
+	def encrypt(self,data, EncryptAlgo, key, mode,iv):
 		if (EncryptAlgo=='AES'):
-			aesEncrypter = AES.new(key)
+			aesEncrypter = AES.new(key,mode,iv)
 			return aesEncrypter.encrypt(data)
 		elif (EncryptAlgo=='Blowfish'):
 			blowfishEncrypter = Blowfish.new(key)
@@ -75,5 +66,3 @@ class Security():
 			return desDecrypter.decrypter(data)
 		else:
 			raise Exception('Could not decrypt data.'+DecryptAlgo+' is not supported')
-if __name__=='__main__':
-	main()
