@@ -1,5 +1,77 @@
-The format for metadata of the keyczar key pair can be found here: 
+The format for metadata of the keyczar key pair can be found here:
+------------------------------------------------------------------
 http://code.google.com/p/keyczar/wiki/KeyMetadata
 
 PKC5 works as follows, according to http://www.chilkatsoft.com/faq/PKCS5_Padding.html:
+-----------------------------------------------------------
 PKCS#5 padding works as follows: the bytes remaining to fill a block are assigned a number, which is the number of bytes that were added to fill the block. For instance, if we have an 16-byte block, and only 11 bytes are filled, then we have 5 bytes to pad. Those 5 bytes are all assigned the value "5", for the 5 bytes of padding.
+
+Tutorial on how to sign and encrypt with s/mime (M2Crypto)
+-----------------------------------------------------------
+http://websvn.osafoundation.org/filedetails.php?repname=m2crypto&path=%2Ftrunk%2Fdoc%2Fhowto.smime.html
+
+Signing with S/Mime (m2crypto)
+---------------------------------
+
+    from M2Crypto import BIO, Rand, SMIME
+
+    def makebuf(text):
+        return BIO.MemoryBuffer(text)
+
+    # Make a MemoryBuffer of the message.
+    buf = makebuf('a sign of our times')
+
+    # Seed the PRNG.
+    Rand.load_file('randpool.dat', -1)
+
+    # Instantiate an SMIME object; set it up; sign the buffer.
+    s = SMIME.SMIME()
+    s.load_key('signer_key.pem', 'signer.pem')
+    p7 = s.sign(buf)
+
+
+Encrypting with S/Mime (m2crypto)
+---------------------------------
+
+We now demonstrate how to generate an S/MIME-encrypted message:
+
+    from M2Crypto import BIO, Rand, SMIME, X509
+    
+    def makebuf(text):
+        return BIO.MemoryBuffer(text)
+    
+    # Make a MemoryBuffer of the message.
+    buf = makebuf('a sign of our times')
+    
+    # Seed the PRNG.
+    Rand.load_file('randpool.dat', -1)
+
+    # Instantiate an SMIME object.
+    s = SMIME.SMIME()
+    
+    # Load target cert to encrypt to.
+    x509 = X509.load_cert('recipient.pem')
+    sk = X509.X509_Stack()
+    sk.push(x509)
+    s.set_x509_stack(sk)
+    
+    # Set cipher: 3-key triple-DES in CBC mode.
+    s.set_cipher(SMIME.Cipher('des_ede3_cbc'))
+    
+    # Encrypt the buffer.
+    p7 = s.encrypt(buf)
+        
+    # Output p7 in mail-friendly format.
+    out = BIO.MemoryBuffer()
+    out.write('From: sender@example.dom\n')
+    out.write('To: recipient@example.dom\n')
+    out.write('Subject: M2Crypto S/MIME testing\n')
+    s.write(out, p7)
+    
+    print out.read()
+
+    # Save the PRNG's state.
+    Rand.save_file('randpool.dat')
+   
+
+
