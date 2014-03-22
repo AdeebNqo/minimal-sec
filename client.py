@@ -67,10 +67,11 @@ class client(object):
 	def sendFile(self,File):
 		line = File.readline()
 		dashpos = line.find('-') #Dash position
-		ID = line[0:dashpos]
+		ID = line[0:dashpos].replace('ID','')
+		print('id is {}'.format(ID))
 		DETAILS = line[dashpos+1:]
 		iv = Random.new().read(AES.block_size);
-		self.send('{0}{1}{2}'.format(ID,base64.b64encode(self.security.encrypt(DETAILS,'AES', 'thisisakey', AES.MODE_CBC, iv)),self.security.hash('{0}{1}'.format(ID,DETAILS),'sha224')))
+		self.send('{0}{1}{2}'.format('ID'.format(ID),base64.b64encode(self.security.encrypt(DETAILS,'AES', 'thisisakey', AES.MODE_CBC, iv)),self.security.hash('{0}{1}'.format(ID,DETAILS),'sha224')))
 	def disconnect(self):
 		self.sockt.close()
 	def send(self,data):
