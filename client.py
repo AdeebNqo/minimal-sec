@@ -81,6 +81,8 @@ class client(object):
 		config['publickey'] = publickey
 		config['privatekey'] = privatekey
 		pickle.dump(config, open('./data/client_config.pkl','w'))
+	def sendEmail():
+		print('--\temail menu\t--')
 if __name__=='__main__':
 	client = client('localhost', 7778)
 	client.connect()
