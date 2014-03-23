@@ -95,7 +95,7 @@ class client(object):
 		stack.push(x509)
 		smime.set_x509_stack(stack)
 
-		smime.set_cipher(SMIME.Cipher('aes_cbc'))
+		smime.set_cipher(SMIME.Cipher('des_ede3_cbc'))
 		tmp = BIO.MemoryBuffer()
 		smime.write(tmp, p7, emailbuffer)
 		p7 = smime.encrypt(tmp)
