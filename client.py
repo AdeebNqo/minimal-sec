@@ -12,6 +12,8 @@ from Crypto.Cipher import PKCS1_v1_5
 from security import security
 from Crypto.Cipher import AES
 from Crypto import Random
+from M2Crypto import BIO, Rand, SMIME
+
 blocksize = 16 #Block size for the encryption
 
 class client(object):
@@ -83,6 +85,7 @@ class client(object):
 		pickle.dump(config, open('./data/client_config.pkl','w'))
 	def sendEmail():
 		print('--\temail menu\t--')
+		
 if __name__=='__main__':
 	client = client('localhost', 7778)
 	client.connect()
