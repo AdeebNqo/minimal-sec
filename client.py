@@ -12,7 +12,7 @@ from Crypto.Cipher import PKCS1_v1_5
 from security import security
 from Crypto.Cipher import AES
 from Crypto import Random
-from M2Crypto import BIO, Rand, SMIME
+from M2Crypto import BIO, Rand, SMIME, X509
 
 blocksize = 16 #Block size for the encryption
 
@@ -80,12 +80,25 @@ class client(object):
 		pickle.dump(config, open('./data/client_config.pkl','w'))
 	def sendEmail(self,To, From, data):
 		print('--\temail menu\t--')
+
+		#step 1 : signing email
 		emailbuffer = BIO.MemoryBuffer(data) #creating a buffer with the email data
 
 		# Instantiate an SMIME object; set it up; sign the buffer.
-		s = SMIME.SMIME()
-		s.load_key('keys/email/sender/signer_privkey.pem', 'keys/email/sender/signer.pem')
-		p7 = s.sign(emailbuffer)
+		smime = SMIME.SMIME()
+		smime.load_key('keys/email/sender/signer_privkey.pem', 'keys/email/sender/signer.pem')
+		p7 = smime.sign(emailbuffer)
+	
+		#step 2: encrypting email
+		x509 = X509.load_cert('keys/email/recipient/recipient.pem')
+		stack = X509.X509_Stack()
+		stack.push(x509)
+		smime.set_x509_stack(stack)
+
+		smime.set_cipher(SMIME.Cipher('aes_cbc'))
+		tmp = BIO.MemoryBuffer()
+		smime.write(tmp, p7, emailbuffer)
+		p7 = smime.encrypt(tmp)
 		print(p7)
 	def interface(self):
 		inputv = ''			
