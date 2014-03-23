@@ -73,5 +73,6 @@ We now demonstrate how to generate an S/MIME-encrypted message:
     # Save the PRNG's state.
     Rand.save_file('randpool.dat')
    
-
+Dependencies:
+1. swig
 

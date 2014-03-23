@@ -12,7 +12,7 @@ from Crypto.Cipher import PKCS1_v1_5
 from security import security
 from Crypto.Cipher import AES
 from Crypto import Random
-from M2Crypto import BIO, Rand, SMIME
+import M2Crypto
 
 blocksize = 16 #Block size for the encryption
 
