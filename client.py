@@ -12,7 +12,7 @@ from Crypto.Cipher import PKCS1_v1_5
 from security import security
 from Crypto.Cipher import AES
 from Crypto import Random
-import M2Crypto
+from M2Crypto import BIO, Rand, SMIME
 
 blocksize = 16 #Block size for the encryption
 
@@ -61,11 +61,6 @@ class client(object):
 			prsakey = PKCS1_v1_5.new(prsakey)
 			token = prsakey.encrypt(token)
 			self.send(base64.b64encode(token))
-			inputv = ''			
-			while (inputv!='q'):
-				inputv = input('location of folder to transfer:')
-				File = open(inputv,'r')
-				self.sendFile(File)
 	def sendFile(self,File):
 		line = File.readline()
 		dashpos = line.find('-') #Dash position
@@ -83,11 +78,32 @@ class client(object):
 		config['publickey'] = publickey
 		config['privatekey'] = privatekey
 		pickle.dump(config, open('./data/client_config.pkl','w'))
-	def sendEmail():
+	def sendEmail(self,To, From, data):
 		print('--\temail menu\t--')
+		emailbuffer = BIO.MemoryBuffer(data) #creating a buffer with the email data
+
+		# Instantiate an SMIME object; set it up; sign the buffer.
+		s = SMIME.SMIME()
+		s.load_key('keys/email/comodoEmailcert.pem', 'comodoEmailcert.pem')
+		p7 = s.sign(buf)
+		print(p7)
+	def interface(self):
+		inputv = ''			
+		while (inputv!='q'):
+			inputv = input('--\tMenu\t--\n1. Send File\n2. Send email.\n')
+			if (inputv==1):
+				inputv = input("Location of file:")
+				File = open(inputv,'r')
+				self.sendFile(File)
+			elif(inputv==2):
+				data = raw_input("Enter sample msg:")
+				To = raw_input("email receipeint:")
+				From = raw_input("email sender")
+				self.sendEmail(To,From, data)
+				
 		
 if __name__=='__main__':
 	client = client('localhost', 7778)
 	client.connect()
-	#client.send('hello')
+	client.interface()
 	client.disconnect()
