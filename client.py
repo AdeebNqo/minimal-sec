@@ -84,8 +84,8 @@ class client(object):
 
 		# Instantiate an SMIME object; set it up; sign the buffer.
 		s = SMIME.SMIME()
-		s.load_key('keys/email/comodoEmailcert.pem', 'comodoEmailcert.pem')
-		p7 = s.sign(buf)
+		s.load_key('keys/email/comodoEmailcert.pem', 'keys/email/comodoEmailcert.pem')
+		p7 = s.sign(emailbuffer)
 		print(p7)
 	def interface(self):
 		inputv = ''			
