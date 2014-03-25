@@ -12,6 +12,8 @@ from security import security
 from Crypto.Cipher import AES
 from Crypto import Random
 from M2Crypto import BIO, Rand, SMIME, X509
+from keyconfig import Key
+from keyconfig import key
 
 blocksize = 16 #Block size for the encryption
 
@@ -23,13 +25,17 @@ class client(object):
 	privatekeyLocation = None
 	username = 'client001'
 	security = None
+
+	keyconfig = None
 	def __init__(self, host, port):
+		#accessing key configuration file
+		keyconfig = KeyConfig()
+		
 		self.security = security()
-		self.savekeyConfig('./keys','./keys')
 		self.host = host
 		self.port = port
 		self.sockt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		config = pickle.load(open('./data/client_config.pkl','rb'))
+		
 		self.publickeyLocation = config['publickey']
 		self.privatekeyLocation = config['privatekey']
 	def connect(self):
@@ -72,11 +78,6 @@ class client(object):
 		self.sockt.close()
 	def send(self,data):
 		self.sockt.sendall(data)
-	def savekeyConfig(self, publickey, privatekey):
-		config = {}
-		config['publickey'] = publickey
-		config['privatekey'] = privatekey
-		pickle.dump(config, open('./data/client_config.pkl','w'))
 	def sendEmail(self,To, From, data):
 		print('--\temail menu\t--')
 
