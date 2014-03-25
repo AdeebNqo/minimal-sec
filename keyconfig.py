@@ -15,7 +15,7 @@ class KeyConfig():
 		config = open(keyfile,'rb')
 		self.keys = pickle.load(config)
 		config.close()
-	def get_keys(self,KeyOption):
+	def getKey(self,KeyOption):
 		if (KeyOption==Key.OwnPrivate):
 			return keys['ownprivate']
 		elif (KeyOption==Key.OwnPub):
@@ -44,4 +44,3 @@ class KeyConfig():
 		config = open(keyfile,'wb')
 		pickle.dump(keys,config)
 		config.close()
-		print('saving keys')
