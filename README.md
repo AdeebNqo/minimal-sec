@@ -15,6 +15,7 @@ Practical for securing communications between server and client.
 - [ ] Improve entity authentication by using passphrases. Write libray to collect large corpus that gets updated regularly
 - [ ] Clean up keys
 - [ ] Setup file storage in server
+- [ ] Setup nonces
 
 ##Deprecated
 - UDP support
