@@ -13,6 +13,7 @@ Practical for securing communications between server and client.
 - [ ] Keystore and files manipulation on server
 - [ ] Setup config file in server
 - [ ] Improve entity authentication by using passphrases. Write libray to collect large corpus that gets updated regularly
+- [ ] Clean up keys
 
 ##Deprecated
 - UDP support
