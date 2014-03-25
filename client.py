@@ -1,4 +1,4 @@
-#
+:colorscheme vividchalk.vim
 # Zola Mahlaza
 # 09 March 2014
 #
