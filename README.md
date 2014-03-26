@@ -12,6 +12,7 @@ Practical for securing communications between server and client.
 - [X] Protocol for file transfer
 - [X] Setup config file in server
 - [ ] Improve entity authentication by using passphrases. Write libray to collect large corpus that gets updated regularly
+- [ ] Send email
 - [ ] Clean up keys
 - [ ] Setup file storage in server
 - [ ] Setup nonces

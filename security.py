@@ -1,7 +1,7 @@
-
+#
 # Zola Mahlaza
 # 12 March 2014
-# Security utility
+# Security utility methods
 #
 import hashlib
 from Crypto.Cipher import AES

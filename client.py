@@ -1,5 +1,13 @@
+#
+#
 # Zola Mahlaza
 # 09 March 2014
+# 
+# Client for sending encrypted files and emails
+#
+#   "Some people, when confronted with a problem, think "I know, I'll use regular expressions."
+#   Now they have two problems."
+#   -Jamie Zawinski
 #
 import socket
 import pickle
