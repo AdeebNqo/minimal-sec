@@ -12,10 +12,10 @@ import traceback
 #
 
 class OtherParty():
-	emailkey = None
+	emailcert = None
 	publickey = None
-	def setemailkey(self,emailkey):
-		self.emailkey = emailkey
+	def setemailcert(self,emailcert):
+		self.emailcert = emailcert
 	def setpublickey(self,publickey):
 		self.publickey = publickey
 class ClientParty(OtherParty):
