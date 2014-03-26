@@ -66,8 +66,8 @@ class KeyConfig():
 						if (creator=='client'):
 							#taking in server configuration
 							address = raw_input('Server address:')
-							serverkey = raw_input('server public key location:')
-							serveremail = raw_input('server email key')
+							serverkey = '{0}/keyring/{1}'.format(self.keydir,raw_input('server public key filename:'))
+							serveremail = '{0}/keyring/{1}'.format(self.emailkeydir, raw_input('server email key:'))
 							server = ServerParty(address)
 							server.setemailkey(serveremail)
 							server.setpublickey(serverkey)
