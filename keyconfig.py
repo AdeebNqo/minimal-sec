@@ -5,13 +5,15 @@ import traceback
 class Key():
 	OwnPrivate = 0
 	OwnPublic = 1
-	ServerPublic = 2
+	OtherPartyPublic = 2
 	EmailKey = 3
 	EmailCert = 4
 class KeyConfig():
 	keydir = os.getcwd()
 	keys = {}
 	keyfile =None
+	otherpartykeyring = {}
+
 	#loading the pickle file
 	def __init__(self, creator): # creator is eaither client or server
 		self.keyfile = '{0}/keys/{1}/keys.pkl'.format(keydir,creator)
@@ -26,7 +28,12 @@ class KeyConfig():
 					if (response==1):
 						self.saveKey(Key.OwnPublic,'{0}/{1}'.format(self.keydir, raw_input('Own public key:')))
 						self.saveKey(Key.OwnPrivate,'{0}/{1}'.format(self.keydir,raw_input('Own private key:')))
-						self.saveKey(Key.ServerPublic,'{0}/{1}'.format(self.keydir, raw_input('Server public key:')))
+						if (creator=='client'):
+							self.saveKey(Key.ServerPublic,'{0}/{1}'.format(self.keydir, raw_input('Server public key:')))
+						elif (creator=='server'):
+							while():
+								givenKey = raw_input('Server public key:')
+								self.saveKey(Key.ServerPublic,'{0}/{1}'.format(self.keydir, givenKey)
 						self.saveKey(Key.EmailKey,'{0}/{1}'.format(self.keydir, raw_input('email key:')))
 						self.saveKey(Key.EmailCert,'{0}/{1}'.format(self.keydir, raw_input('email certificate:')))
 						self.save()
@@ -35,14 +42,15 @@ class KeyConfig():
 				sys.exit(1)
 		config = open(self.keyfile,'rb')
 		self.keys = pickle.load(config)
+		self.otherpartykeyring = keys['otherpartykeyring']
 		config.close()
 	def getKey(self,KeyOption):
 		if (KeyOption==Key.OwnPrivate):
 			return self.keys['ownprivate']
 		elif (KeyOption==Key.OwnPublic):
 			return self.keys['ownpublic']
-		elif (KeyOption==Key.ServerPublic):
-			return self.keys['serverpub']
+		elif (KeyOption==Key.OtherPartyPublic):
+			return self.keys['otherpartykeyring']
 		elif (KeyOption==Key.EmailKey):
 			return self.keys['emailkey']
 		elif (KeyOption==Key.EmailCert):
@@ -53,7 +61,7 @@ class KeyConfig():
 			self.keys['ownprivate'] = KeyPath
 		elif (KeyOption==Key.OwnPublic):
 			self.keys['ownpublic'] = KeyPath		
-		elif (KeyOption==Key.ServerPublic):
+		elif (KeyOption==Key.OtherPartyPublic):
 			self.keys['serverpub'] = KeyPath
 		elif (KeyOption==Key.EmailKey):
 			self.keys['emailkey'] = KeyPath
