@@ -22,6 +22,8 @@ from Crypto import Random
 from M2Crypto import BIO, Rand, SMIME, X509
 from keyconfig import Key
 from keyconfig import KeyConfig
+import smtplib
+from email.mime.text import MIMEText
 
 blocksize = 16 #Block size for the encryption
 
@@ -93,15 +95,25 @@ class client(object):
 		self.sockt.close()
 	def send(self,data):
 		self.sockt.sendall(data)
-	def sendEmail(self,To, From, data):
+	def sendEmail(self):
 		print('--\temail menu\t--')
 
+		to = raw_input('recipient: ')
+		From = raw_input('sender: ')
+		ccList = []
+		ccCode = 1
+		while(ccCode!=1):
+			ccCode = input('CC someone?\n1.Yes <Return if not>')
+			if (ccCode==1):
+				ccList.append(raw_input('cc address'))
+		subject = raw_input('email subject: ')
+		data = raw_input("msg:\n")
 		#step 1 : signing email
 		emailbuffer = BIO.MemoryBuffer(data) #creating a buffer with the email data
 
 		# Instantiate an SMIME object; set it up; sign the buffer.
 		smime = SMIME.SMIME()
-		smime.load_key('keys/email/sender/signer_privkey.pem', 'keys/email/sender/signer.pem')
+		smime.load_key(self.keyconfig.getConfigItem(Key.EmailKey), self.keyconfig.getConfigItem(Key.EmailCert))
 		p7 = smime.sign(emailbuffer)
 	
 		#step 2: encrypting email
@@ -114,7 +126,18 @@ class client(object):
 		tmp = BIO.MemoryBuffer()
 		smime.write(tmp, p7, emailbuffer)
 		p7 = smime.encrypt(tmp)
-		print(p7)
+		
+		out = BIO.MemoryBuffer()
+		out.write('From: {}\n'.format(From))
+		ccline = 'Cc: '
+		for i in range(len(ccList)):
+			ccline=ccline+('{{0}} '.format(i))
+		out.write(ccline % tuple(ccList))
+		out.write('Subject: {}'.format(subject))
+		smime.write(out,p7)
+
+		print(out.read())
+		
 	def interface(self):
 		inputv = ''			
 		while (inputv!='q'):
@@ -124,10 +147,7 @@ class client(object):
 				File = open(inputv,'r')
 				self.sendFile(File)
 			elif(inputv==2):
-				data = raw_input("Enter sample msg:")
-				To = raw_input("email receipeint:")
-				From = raw_input("email sender")
-				self.sendEmail(To,From, data)
+				self.sendEmail()
 				
 		
 if __name__=='__main__':
