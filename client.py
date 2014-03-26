@@ -129,6 +129,7 @@ class client(object):
 		
 		out = BIO.MemoryBuffer()
 		out.write('From: {}\n'.format(From))
+		out.write('To: {}\n'.format(to))
 		if (len(ccList)>0):
 			ccline = 'Cc: '
 			for i in range(len(ccList)):
