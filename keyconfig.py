@@ -66,9 +66,9 @@ class KeyConfig():
 							#taking in server configuration
 							address = raw_input('Server address:')
 							serverkey = '{0}/keyring/{1}'.format(self.keydir,raw_input('server public key filename:'))
-							serveremail = '{0}/keyring/{1}'.format(self.emailkeydir, raw_input('server email key:'))
+							serveremail = '{0}/keyring/{1}'.format(self.emailkeydir, raw_input('server email cert:'))
 							server = ServerParty(address)
-							server.setemailkey(serveremail)
+							server.setemailcert(serveremail)
 							server.setpublickey(serverkey)
 							self.saveOtherParty(server)
 							self.save()
@@ -76,9 +76,9 @@ class KeyConfig():
 							#taking the details of the client
 							username = raw_input('Client username:')
 							clientkey = '{0}/keyring/{1}'.format(self.keydir,raw_input('client public key filename:'))
-							clientemail = '{0}/keyring/{1}'.format(self.emailkeydir, raw_input('client email key:'))
+							clientemail = '{0}/keyring/{1}'.format(self.emailkeydir, raw_input('client email cert:'))
 							client = ClientParty(username)
-							client.setemailkey(clientemail)
+							client.setemailcert(clientemail)
 							client.setpublickey(clientkey)
 							self.saveOtherParty(client)
 							self.save()
