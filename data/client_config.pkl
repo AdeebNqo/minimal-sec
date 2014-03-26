@@ -1,9 +1,0 @@
-(dp0
-S'publickey'
-p1
-S'./keys'
-p2
-sS'privatekey'
-p3
-g2
-s.
