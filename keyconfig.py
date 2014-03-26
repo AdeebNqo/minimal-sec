@@ -63,7 +63,7 @@ class KeyConfig():
 						self.saveKey(Key.OwnPrivate,'{0}/{1}'.format(self.keydir,raw_input('Own private key:')))
 						self.saveKey(Key.EmailKey,'{0}/{1}'.format(self.emailkeydir, raw_input('email key:')))
 						self.saveKey(Key.EmailCert,'{0}/{1}'.format(self.emailkeydir, raw_input('email certificate:')))
-						if (creator=='client'):
+						if (creatorType=='client'):
 							#taking in server configuration
 							address = raw_input('Server address:')
 							serverkey = '{0}/keyring/{1}'.format(self.keydir,raw_input('server public key filename:'))
@@ -73,7 +73,7 @@ class KeyConfig():
 							server.setpublickey(serverkey)
 							self.saveOtherParty(server)
 							self.save()
-						elif (creator=='server'):
+						elif (creatorType=='server'):
 							print('doing stuff for server')
 						self.save()
 			except Exception:
