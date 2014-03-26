@@ -117,7 +117,6 @@ class client(object):
 		p7 = smime.sign(emailbuffer)
 	
 		#step 2: encrypting email
-		print('server email certificate: {}'.format(self.serveremailkeylocation))
 		x509 = X509.load_cert(self.serveremailcertlocation)
 		stack = X509.X509_Stack()
 		stack.push(x509)
@@ -130,11 +129,12 @@ class client(object):
 		
 		out = BIO.MemoryBuffer()
 		out.write('From: {}\n'.format(From))
-		ccline = 'Cc: '
-		for i in range(len(ccList)):
-			ccline=ccline+('{{0}} '.format(i))
-		out.write(ccline % tuple(ccList))
-		out.write('Subject: {}'.format(subject))
+		if (len(ccList)>0):
+			ccline = 'Cc: '
+			for i in range(len(ccList)):
+				ccline=ccline+('{{0}} '.format(i))
+			out.write(ccline % tuple(ccList))
+		out.write('Subject: {}\n'.format(subject))
 		smime.write(out,p7)
 
 		print(out.read())
