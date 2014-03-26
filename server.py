@@ -12,16 +12,23 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
 import sys
 import base64
+from keyconfig import KeyConfig
+from keyconfig import Key
 
 registeredclients = {}
 connectedclients = {}
 server_up = True
+keyconfig = KeyConfig('server')
+
 class sockethandler(threading.Thread):
 	connection = None
 	address = None
 	connection_up = True
 	def __init__(self,conn, addr):
-		registeredclients['client001'] = '{}/keys/server/client001.pub'.format(os.getcwd())#registering default client
+
+		clients = keyconfig.getConfigItem(Key.OtherParties) #retrieving all clients authorized to access server
+		for client in clients:
+			registeredclients[client.username] = client.publickey
 		self.connection = conn
 		self.address = addr
 		self.connection.setblocking(1)
@@ -33,7 +40,7 @@ class sockethandler(threading.Thread):
 		while 1:
 			print('waiting for data...')
 			data = self.connection.recv(1024).strip()
-			print('server received {}'.format(data))
+			print('server received -{}-'.format(data))
 			if (data.startswith('CONNECT')):
 				clientname = data.split()[1]
 				if (clientname in registeredclients.keys()):
@@ -52,7 +59,7 @@ class sockethandler(threading.Thread):
 					rtoken = self.connection.recv(1024).strip()
 					print('client has responded')
 					rtoken = base64.b64decode(rtoken)
-					privkey = open('{}/keys/server/server'.format(os.getcwd()),'r').read()
+					privkey = open(keyconfig.getConfigItem(Key.OwnPrivate),'r').read()
 					prsakey = RSA.importKey(privkey)
 					prsakey = PKCS1_v1_5.new(prsakey)
 					rtoken = prsakey.decrypt(rtoken,-1)
@@ -69,35 +76,14 @@ class sockethandler(threading.Thread):
 							self.connection.close()
 				else:
 					self.connection.sendall('101 CONNECT FAILED')
-			
+			else:
+				#connection lost
+				print('{} has disconnected from server.'.format(self.address))
+				break
 
 class server():
-	files = []
-	keytore =[]
 	sockt = None
 	def __init__(self,address):
-		exists = False
-		try:
-			items = os.listdir('./data')
-			tmpcount = 0
-			if ('keystore.ks' in items and 'files.pkl' in items):
-				exists = True
-		except OSError:
-			os.mkdir('./data')
-		if (exists==False):
-			#Creating the empty files
-			open('./data/keystore.ks','w').close()
-			open('./data/files.pkl','w').close()
-		else:
-			try:
-				#load the stored files
-				files = pickle.load(open('./data/files.pkl','r'))
-				#loading stored keys
-				keystore = shelve.open('keystore.ks')
-			except EOFError:
-				#the files are empty
-				files = []
-				keystore =[]
 		self.sockt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.sockt.bind(address)
 		self.sockt.listen(1)

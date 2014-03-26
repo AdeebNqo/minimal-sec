@@ -1,0 +1,21 @@
+(dp0
+S'ownpublic'
+p1
+S'/home/adeeb/Documents/university of cape town/hons/currrent/NIS/minimal-sec/keys/server/server.pub'
+p2
+sS'ownprivate'
+p3
+S'/home/adeeb/Documents/university of cape town/hons/currrent/NIS/minimal-sec/keys/server/server'
+p4
+sS'emailkey'
+p5
+S'/home/adeeb/Documents/university of cape town/hons/currrent/NIS/minimal-sec/keys/email/server/privkey.pem'
+p6
+sS'otherparties'
+p7
+(lp8
+sS'emailcert'
+p9
+S'/home/adeeb/Documents/university of cape town/hons/currrent/NIS/minimal-sec/keys/email/server/recipient.pem'
+p10
+s.

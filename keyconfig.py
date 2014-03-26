@@ -46,8 +46,8 @@ class KeyConfig():
 			self.emailkeydir = '{}/keys/email/client'.format(self.currdir)
 		elif (creatorType=='server'):
 			self.keyfile = '{}/keys/server/keys.pkl'.format(self.currdir)
-			self.keydir = '{}/keys/server/'.format(self.currdir)
-			self.emailkeydir = '{}/keys/email/server'.format(self.curdir)
+			self.keydir = '{}/keys/server'.format(self.currdir)
+			self.emailkeydir = '{}/keys/email/server'.format(self.currdir)
 		#checking if key dir exists first
 		if (os.path.isfile(self.keyfile)==False):
 			self.config['otherparties'] = []
@@ -87,8 +87,6 @@ class KeyConfig():
 			return self.config['ownprivate']
 		elif (KeyOption==Key.OwnPublic):
 			return self.config['ownpublic']
-		elif (KeyOption==Key.OtherPartyPublic):
-			return self.config['otherpartykeyring']
 		elif (KeyOption==Key.EmailKey):
 			return self.config['emailkey']
 		elif (KeyOption==Key.EmailCert):
