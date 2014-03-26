@@ -25,9 +25,7 @@ locale = [
 	'it_IT',
 	'ko_KR',
 	'pl_PL',
-	'pt_BR',
-	'ru_RU',
-	'zh_CN'
+	'pt_BR'
 	]
 lang = locale[random.randint(0,len(locale)-1)]
 fake = Factory.create(lang)

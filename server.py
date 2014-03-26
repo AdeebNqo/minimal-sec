@@ -55,6 +55,7 @@ class sockethandler(threading.Thread):
 				if (clientname in registeredclients.keys()):
 					print('client is registered.')
 					token = passphrase.getpassphrase()
+					print('generated passphrase is {}'.format(token))
 					#encrypting
 					pubkey = open(registeredclients[clientname],'r').read()
 					rsakey = RSA.importKey(pubkey)
