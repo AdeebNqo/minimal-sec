@@ -59,7 +59,7 @@ class sockethandler(threading.Thread):
 					print('client responded with {}'.format(rtoken))
 					if (rtoken==-1):
 						self.connection.close()
-						raise Execption('Decryption of client token failed.')
+						raise Exception('Decryption of client token failed.')
 					else:
 						if (rtoken==token):
 							print('entity authentication successful.')

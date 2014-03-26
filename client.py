@@ -13,7 +13,7 @@ from Crypto.Cipher import AES
 from Crypto import Random
 from M2Crypto import BIO, Rand, SMIME, X509
 from keyconfig import Key
-from keyconfig import key
+from keyconfig import KeyConfig
 
 blocksize = 16 #Block size for the encryption
 
@@ -36,8 +36,8 @@ class client(object):
 		self.port = port
 		self.sockt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		
-		self.publickeyLocation = config['publickey']
-		self.privatekeyLocation = config['privatekey']
+		self.publickeyLocation = keyconfig.getKey(Key.OwnPublic)
+		self.privatekeyLocation = keyconfig.getKey(Key.OwnPrivate)
 	def connect(self):
 		print('connecting....')
 		self.sockt.connect((self.host, self.port))
@@ -54,14 +54,14 @@ class client(object):
 			#decrypting token
 			authtoken = base64.b64decode(response)
 			print('server responded with token: {}'.format(authtoken))
-			privkey = open('{}/client/client'.format(self.privatekeyLocation),'r').read()
+			privkey = open(self.privatekeyLocation,'rb').read()
 			rsakey = RSA.importKey(privkey)
 			rsakey = PKCS1_v1_5.new(rsakey)
 			token = rsakey.decrypt(authtoken, -1)
 			print('the decrypted token is {} '.format(token))
 			print('sending token back to server...')
 			#encrypting with server public keys
-			pubkey = open('{}/client/server.pub'.format(self.publickeyLocation)).read()
+			pubkey = open(self.publickeyLocation).read()
 			prsakey = RSA.importKey(pubkey)
 			prsakey = PKCS1_v1_5.new(prsakey)
 			token = prsakey.encrypt(token)
