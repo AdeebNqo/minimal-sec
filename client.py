@@ -29,7 +29,7 @@ class client(object):
 	keyconfig = None
 	def __init__(self, host, port):
 		#accessing key configuration file
-		keyconfig = KeyConfig()
+		keyconfig = KeyConfig('client')
 		
 		self.security = security()
 		self.host = host
