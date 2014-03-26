@@ -11,8 +11,9 @@ Practical for securing communications between server and client.
 - [X] Entity authentication protocol
 - [X] Protocol for file transfer
 - [X] Setup config file in server
-- [ ] Improve entity authentication by using passphrases. Write libray to collect large corpus that gets updated regularly
+- [X] Improve entity authentication by using passphrases. Write libray to collect large corpus that gets updated regularly
 - [ ] Send email
+- [ ] Fix ascci encoding error with passphrases
 - [ ] Clean up keys
 - [ ] Setup file storage in server
 - [ ] Setup nonces
