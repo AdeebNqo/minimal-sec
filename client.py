@@ -137,9 +137,11 @@ class client(object):
 			out.write(ccline % tuple(ccList))
 		out.write('Subject: {}\n'.format(subject))
 		smime.write(out,p7)
-
-		print(out.read())
 		
+		server = smtplib.SMTP('smtp.gmail.com')
+		server.sendmail(From,to,out.read())
+		server.quit()
+
 	def interface(self):
 		inputv = ''			
 		while (inputv!='q'):
