@@ -10,8 +10,7 @@ Practical for securing communications between server and client.
 - [X] Fix server
 - [X] Entity authentication protocol
 - [ ] Protocol for file transfer
-- [ ] Keystore and files manipulation on server
-- [ ] Setup config file in server
+- [X] Setup config file in server
 - [ ] Improve entity authentication by using passphrases. Write libray to collect large corpus that gets updated regularly
 - [ ] Clean up keys
 - [ ] Setup file storage in server
