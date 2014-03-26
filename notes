@@ -87,3 +87,7 @@ Qoutes:
     Debuggers don't remove bugs. They only show them in slow motion.
 
 — Unknown
+
+
+Thread/question on how to add cc and bcc when using smtplib in python
+http://stackoverflow.com/questions/1546367/python-how-to-send-mail-with-to-cc-and-bcc
