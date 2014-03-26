@@ -54,9 +54,9 @@ class KeyConfig():
 						self.saveKey(Key.EmailKey,'{0}/{1}'.format(self.keydir, raw_input('email key:')))
 						self.saveKey(Key.EmailCert,'{0}/{1}'.format(self.keydir, raw_input('email certificate:')))
 						if (creator=='client'):
-							print('')
+							print('doing stuff for client')
 						elif (creator=='server'):
-							print()
+							print('doing stuff for server')
 						self.save()
 			except Exception:
 				traceback.print_exc(file=sys.stdout)
