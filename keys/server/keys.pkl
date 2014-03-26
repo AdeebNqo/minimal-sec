@@ -14,8 +14,23 @@ p6
 sS'otherparties'
 p7
 (lp8
-sS'emailcert'
+(ikeyconfig
+ClientParty
 p9
+(dp10
+S'username'
+p11
+S'client001'
+p12
+sS'publickey'
+p13
+S'/home/adeeb/Documents/university of cape town/hons/currrent/NIS/minimal-sec/keys/server/keyring/client001.pub'
+p14
+sg5
+S'/home/adeeb/Documents/university of cape town/hons/currrent/NIS/minimal-sec/keys/email/server/keyring/client.pem'
+p15
+sbasS'emailcert'
+p16
 S'/home/adeeb/Documents/university of cape town/hons/currrent/NIS/minimal-sec/keys/email/server/recipient.pem'
-p10
+p17
 s.

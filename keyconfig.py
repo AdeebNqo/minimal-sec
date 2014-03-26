@@ -73,8 +73,15 @@ class KeyConfig():
 							self.saveOtherParty(server)
 							self.save()
 						elif (creatorType=='server'):
-							print('doing stuff for server')
-						self.save()
+							#taking the details of the client
+							username = raw_input('Client username:')
+							clientkey = '{0}/keyring/{1}'.format(self.keydir,raw_input('client public key filename:'))
+							clientemail = '{0}/keyring/{1}'.format(self.emailkeydir, raw_input('client email key:'))
+							client = ClientParty(username)
+							client.setemailkey(clientemail)
+							client.setpublickey(clientkey)
+							self.saveOtherParty(client)
+							self.save()
 			except Exception:
 				traceback.print_exc(file=sys.stdout)
 				sys.exit(1)

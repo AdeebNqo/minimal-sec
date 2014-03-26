@@ -5,7 +5,7 @@
 # Server to handle file storage
 #   
 #  "It's all talk until the code runs."
-#  — Ward Cunningham
+#  - Ward Cunningham
 #
 import shelve
 import pickle
@@ -47,6 +47,7 @@ class sockethandler(threading.Thread):
 			data = self.connection.recv(1024).strip()
 			print('server received -{}-'.format(data))
 			if (data.startswith('CONNECT')):
+				print('client attempting to connect...')
 				clientname = data.split()[1]
 				if (clientname in registeredclients.keys()):
 					print('client is registered.')
@@ -80,6 +81,7 @@ class sockethandler(threading.Thread):
 							self.connection_up = False
 							self.connection.close()
 				else:
+					print('client not registered')
 					self.connection.sendall('101 CONNECT FAILED')
 			else:
 				#connection lost
