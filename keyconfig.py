@@ -31,30 +31,25 @@ class ServerParty(OtherParty):
 class Key():
 	OwnPrivate = 0
 	OwnPublic = 1
-<<<<<<< HEAD
-	OtherPartyPublic = 2
-	EmailKey = 3
-	EmailCert = 4
-class KeyConfig():
-	keydir = os.getcwd()
-	keys = {}
-	keyfile =None
-	otherpartykeyring = {}
-
-	#loading the pickle file
-	def __init__(self, creator): # creator is eaither client or server
-		self.keyfile = '{0}/keys/{1}/keys.pkl'.format(keydir,creator)
-=======
 	EmailKey = 2
 	EmailCert = 3
 	OtherParties = 4
+
 class KeyConfig():
 	currdir = os.getcwd()
-	conf = {}
-	keyfile ='{}/keys/keys.pkl'.format(keydir)
-	#loading the pickle file
+	keydir = None
+	emailkeydir = None
+	config = {}
+	keyfile = None	#loading the pickle file
 	def __init__(self,creatorType): #creatorType is the type of controller: client or server
->>>>>>> f24c7f2f1cf935c2c293f94e77975a70ea4b55bd
+		if (creatorType=='client'):
+			self.keyfile='{}/keys/client/keys.pkl'.format(self.currdir)
+			self.keydir = '{}/keys/client'.format(self.currdir)
+			self.emailkeydir = '{}/keys/email/client'.format(self.currdir)
+		elif (creatorType=='server'):
+			self.keyfile = '{}/keys/server/keys.pkl'.format(self.currdir)
+			self.keydir = '{}/keys/server/'.format(self.currdir)
+			self.emailkeydir = '{}/keys/email/server'.format(self.curdir)
 		#checking if key dir exists first
 		if (os.path.isfile(self.keyfile)==False):
 			#create file and save config
@@ -66,45 +61,34 @@ class KeyConfig():
 					if (response==1):
 						self.saveKey(Key.OwnPublic,'{0}/{1}'.format(self.keydir, raw_input('Own public key:')))
 						self.saveKey(Key.OwnPrivate,'{0}/{1}'.format(self.keydir,raw_input('Own private key:')))
-<<<<<<< HEAD
+						self.saveKey(Key.EmailKey,'{0}/{1}'.format(self.emailkeydir, raw_input('email key:')))
+						self.saveKey(Key.EmailCert,'{0}/{1}'.format(self.emailkeydir, raw_input('email certificate:')))
 						if (creator=='client'):
-							self.saveKey(Key.ServerPublic,'{0}/{1}'.format(self.keydir, raw_input('Server public key:')))
-						elif (creator=='server'):
-							while():
-								givenKey = raw_input('Server public key:')
-								self.saveKey(Key.ServerPublic,'{0}/{1}'.format(self.keydir, givenKey)
-=======
->>>>>>> f24c7f2f1cf935c2c293f94e77975a70ea4b55bd
-						self.saveKey(Key.EmailKey,'{0}/{1}'.format(self.keydir, raw_input('email key:')))
-						self.saveKey(Key.EmailCert,'{0}/{1}'.format(self.keydir, raw_input('email certificate:')))
-						if (creator=='client'):
-							print('doing stuff for client')
+							#taking in server configuration
+							address = raw_input('Server address:')
+							serverkey = raw_input('server public key location:')
+							serveremail = raw_input('server email key')
+							server = ServerParty(address)
+							server.setemailkey(serveremail)
+							server.setpublickey(serverkey)
+							self.saveOtherParty(server)
+							self.save()
 						elif (creator=='server'):
 							print('doing stuff for server')
 						self.save()
 			except Exception:
 				traceback.print_exc(file=sys.stdout)
 				sys.exit(1)
-<<<<<<< HEAD
-		config = open(self.keyfile,'rb')
-		self.keys = pickle.load(config)
-		self.otherpartykeyring = keys['otherpartykeyring']
-=======
 		configfile = open(self.keyfile,'rb')
 		self.keys = pickle.load(configfile)
->>>>>>> f24c7f2f1cf935c2c293f94e77975a70ea4b55bd
-		config.close()
+		configfile.close()
 	def getConfigItem(self,KeyOption):
 		if (KeyOption==Key.OwnPrivate):
 			return self.config['ownprivate']
 		elif (KeyOption==Key.OwnPublic):
-<<<<<<< HEAD
 			return self.keys['ownpublic']
 		elif (KeyOption==Key.OtherPartyPublic):
-			return self.keys['otherpartykeyring']
-=======
-			return self.config['ownpublic']
->>>>>>> f24c7f2f1cf935c2c293f94e77975a70ea4b55bd
+			return self.config['otherpartykeyring']
 		elif (KeyOption==Key.EmailKey):
 			return self.config['emailkey']
 		elif (KeyOption==Key.EmailCert):
@@ -117,14 +101,7 @@ class KeyConfig():
 			self.config['ownprivate'] = KeyPath
 			return 1
 		elif (KeyOption==Key.OwnPublic):
-<<<<<<< HEAD
-			self.keys['ownpublic'] = KeyPath		
-		elif (KeyOption==Key.OtherPartyPublic):
-			self.keys['serverpub'] = KeyPath
-=======
 			self.config['ownpublic'] = KeyPath		
-			return 1
->>>>>>> f24c7f2f1cf935c2c293f94e77975a70ea4b55bd
 		elif (KeyOption==Key.EmailKey):
 			self.config['emailkey'] = KeyPath
 			return 1

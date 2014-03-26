@@ -36,8 +36,8 @@ class client(object):
 		self.port = port
 		self.sockt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		
-		self.publickeyLocation = keyconfig.getKey(Key.OwnPublic)
-		self.privatekeyLocation = keyconfig.getKey(Key.OwnPrivate)
+		self.publickeyLocation = keyconfig.getConfigItem(Key.OwnPublic)
+		self.privatekeyLocation = keyconfig.getConfigItem(Key.OwnPrivate)
 	def connect(self):
 		print('connecting....')
 		self.sockt.connect((self.host, self.port))
