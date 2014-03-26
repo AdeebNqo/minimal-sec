@@ -11,9 +11,10 @@ class Key():
 class KeyConfig():
 	keydir = os.getcwd()
 	keys = {}
-	keyfile ='{}/keys/keys.pkl'.format(keydir)
+	keyfile =None
 	#loading the pickle file
-	def __init__(self):
+	def __init__(self, creator): # creator is eaither client or server
+		self.keyfile = '{0}/keys/{1}/keys.pkl'.format(keydir,creator)
 		#checking if key dir exists first
 		if (os.path.isfile(self.keyfile)==False):
 			#create file and save config
