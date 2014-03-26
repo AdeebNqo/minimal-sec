@@ -41,6 +41,8 @@ class sockethandler(threading.Thread):
 		self.daemon = True
 	def stop(self):
 		super(sockethandler, self).stop();
+	def send(self,data):
+		self.connection.sendall(data)
 	def run(self):
 		while 1:
 			print('waiting for data...')
@@ -58,14 +60,16 @@ class sockethandler(threading.Thread):
 					rsakey = PKCS1_v1_5.new(rsakey)
 					authtoken = base64.b64encode(rsakey.encrypt(token))
 					print('encrypted token is {}'.format(authtoken))
-					self.connection.sendall(authtoken)
+					self.send(authtoken)
 					print('sent authtoken')
 					print('waiting for client response...')
 					#Retrieve token again from client
 					rtoken = self.connection.recv(1024).strip()
-					print('client has responded')
+					print('client has responded. Now decoding response..')
 					rtoken = base64.b64decode(rtoken)
-					privkey = open(keyconfig.getConfigItem(Key.OwnPrivate),'r').read()
+					spriv = keyconfig.getConfigItem(Key.OwnPrivate)
+					print('server private key is located at {}'.format(spriv))
+					privkey = open(spriv,'r').read()
 					prsakey = RSA.importKey(privkey)
 					prsakey = PKCS1_v1_5.new(prsakey)
 					rtoken = prsakey.decrypt(rtoken,-1)
@@ -82,7 +86,7 @@ class sockethandler(threading.Thread):
 							self.connection.close()
 				else:
 					print('client not registered')
-					self.connection.sendall('101 CONNECT FAILED')
+					self.send('101 CONNECT FAILED')
 			else:
 				#connection lost
 				print('{} has disconnected from server.'.format(self.address))

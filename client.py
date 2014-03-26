@@ -48,7 +48,7 @@ class client(object):
 		self.send('CONNECT {}'.format(self.username))
 		response = self.sockt.recv(1024).strip()
 		print('server response is {}'.format(response))
-		if (response.startswith('101')):
+		if (response=='101 CONNECT FAILED'):
 			raise Exception('Connection failed 101. Client not recognized')
 		else:
 			#decrypting token
