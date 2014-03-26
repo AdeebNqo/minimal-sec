@@ -56,7 +56,7 @@ class client(object):
 		for server in authServers:
 			if (server.address==self.sockt.getpeername()[0]):
 				self.serverpublickeylocation=server.publickey
-				self.serveremailcertlocation=server.emailkey 	
+				self.serveremailcertlocation=server.emailcert 	
 		print('connection established')
 		print('initiating 3 way handshake...')
 		#initiate three-way handshake

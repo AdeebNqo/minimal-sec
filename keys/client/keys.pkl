@@ -1,0 +1,36 @@
+(dp0
+S'ownpublic'
+p1
+S'/home/adeeb/Documents/university of cape town/hons/currrent/NIS/minimal-sec/keys/client/client.pub'
+p2
+sS'ownprivate'
+p3
+S'/home/adeeb/Documents/university of cape town/hons/currrent/NIS/minimal-sec/keys/client/client'
+p4
+sS'emailkey'
+p5
+S'/home/adeeb/Documents/university of cape town/hons/currrent/NIS/minimal-sec/keys/email/client/signer_privkey.pem'
+p6
+sS'otherparties'
+p7
+(lp8
+(ikeyconfig
+ServerParty
+p9
+(dp10
+S'publickey'
+p11
+S'/home/adeeb/Documents/university of cape town/hons/currrent/NIS/minimal-sec/keys/client/keyring/server.pub'
+p12
+sS'emailcert'
+p13
+S'/home/adeeb/Documents/university of cape town/hons/currrent/NIS/minimal-sec/keys/email/client/keyring/recipient.pem'
+p14
+sS'address'
+p15
+S'127.0.0.1'
+p16
+sbasg13
+S'/home/adeeb/Documents/university of cape town/hons/currrent/NIS/minimal-sec/keys/email/client/signer.pem'
+p17
+s.

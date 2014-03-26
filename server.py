@@ -19,6 +19,7 @@ import sys
 import base64
 from keyconfig import KeyConfig
 from keyconfig import Key
+import passphrase
 
 registeredclients = {}
 connectedclients = {}
@@ -53,7 +54,7 @@ class sockethandler(threading.Thread):
 				clientname = data.split()[1]
 				if (clientname in registeredclients.keys()):
 					print('client is registered.')
-					token = "kneel before zod"
+					token = passphrase.getpassphrase()
 					#encrypting
 					pubkey = open(registeredclients[clientname],'r').read()
 					rsakey = RSA.importKey(pubkey)

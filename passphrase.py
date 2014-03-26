@@ -29,17 +29,17 @@ locale = [
 	'ru_RU',
 	'zh_CN'
 	]
-lang = random.randint(0,len(locale)-1)
+lang = locale[random.randint(0,len(locale)-1)]
 fake = Factory.create(lang)
 categories = [
 	'name','company','address'
 	]
-getpassphrase():
+def getpassphrase():
 	choice = categories[random.randint(0,3)]
-	if choice=='name'):
+	if (choice=='name'):
 		return fake.name()
-	elif choice=='company'):
+	elif (choice=='company'):
 		return fake.company()
-	elif choice=='address'):
+	elif (choice=='address'):
 		return fake.address()
 	return None
