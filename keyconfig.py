@@ -22,12 +22,12 @@ class ClientParty(OtherParty):
 	username = None
 	def __init__(self,username):
 		self.username = username
-		super().__init__(self)
+		super(ClientParty,self).__init__()
 class ServerParty(OtherParty):
 	address = None
 	def __init__(self,address):
 		self.address = address
-		super().__init__(self)
+		super(ServerParty, self).__init__()
 class Key():
 	OwnPrivate = 0
 	OwnPublic = 1
