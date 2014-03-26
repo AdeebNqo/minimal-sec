@@ -1,6 +1,11 @@
 #	
-# Zola Mahlaza
+# Zola Mahlaza (AdeebNqo)
 # 8 March 2014
+# 
+# Server to handle file storage
+#   
+#  "It's all talk until the code runs."
+#  — Ward Cunningham
 #
 import shelve
 import pickle
