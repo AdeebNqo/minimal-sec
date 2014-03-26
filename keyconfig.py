@@ -22,12 +22,10 @@ class ClientParty(OtherParty):
 	username = None
 	def __init__(self,username):
 		self.username = username
-		super(ClientParty,self).__init__()
 class ServerParty(OtherParty):
 	address = None
 	def __init__(self,address):
 		self.address = address
-		super(ServerParty, self).__init__()
 class Key():
 	OwnPrivate = 0
 	OwnPublic = 1
@@ -52,6 +50,7 @@ class KeyConfig():
 			self.emailkeydir = '{}/keys/email/server'.format(self.curdir)
 		#checking if key dir exists first
 		if (os.path.isfile(self.keyfile)==False):
+			self.config['otherparties'] = []
 			#create file and save config
 			print('--Key Configuration Menu---')
 			response = 0
@@ -80,13 +79,14 @@ class KeyConfig():
 				traceback.print_exc(file=sys.stdout)
 				sys.exit(1)
 		configfile = open(self.keyfile,'rb')
-		self.keys = pickle.load(configfile)
+		self.config = pickle.load(configfile)
 		configfile.close()
+		print(self.config)
 	def getConfigItem(self,KeyOption):
 		if (KeyOption==Key.OwnPrivate):
 			return self.config['ownprivate']
 		elif (KeyOption==Key.OwnPublic):
-			return self.keys['ownpublic']
+			return self.config['ownpublic']
 		elif (KeyOption==Key.OtherPartyPublic):
 			return self.config['otherpartykeyring']
 		elif (KeyOption==Key.EmailKey):
@@ -115,4 +115,4 @@ class KeyConfig():
 	def save(self):
 		configfile = open(self.keyfile,'wb')
 		pickle.dump(self.config,configfile)
-		config.close()
+		configfile.close()
