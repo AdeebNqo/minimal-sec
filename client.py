@@ -21,27 +21,34 @@ class client(object):
 	sockt = None
 	host = None
 	port = 0
-	publickeyLocation = None
-	privatekeyLocation = None
+	privatekeylocation = None
 	username = 'client001'
 	security = None
 
 	keyconfig = None
+	serverpublickeylocation = None
+	serveremailkeylocation = None
 	def __init__(self, host, port):
 		#accessing key configuration file
-		keyconfig = KeyConfig('client')
+		self.keyconfig = KeyConfig('client')
 		
 		self.security = security()
 		self.host = host
 		self.port = port
 		self.sockt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		
-		self.publickeyLocation = keyconfig.getConfigItem(Key.OwnPublic)
-		self.privatekeyLocation = keyconfig.getConfigItem(Key.OwnPrivate)
+		self.privatekeylocation = self.keyconfig.getConfigItem(Key.OwnPrivate)
+		
 	def connect(self):
 		print('connecting....')
 		self.sockt.connect((self.host, self.port))
 		self.sockt.setblocking(1)
+		authServers = self.keyconfig.getConfigItem(Key.OtherParties) #retrieving all authorized servers
+		#identifying server to which client is connecting
+		for server in authServers:
+			if (server.address==self.sockt.getpeername()[0]):
+				self.serverpublickeylocation=server.publickey
+				self.serveremailcertlocation=server.emailkey 	
 		print('connection established')
 		print('initiating 3 way handshake...')
 		#initiate three-way handshake
@@ -54,14 +61,14 @@ class client(object):
 			#decrypting token
 			authtoken = base64.b64decode(response)
 			print('server responded with token: {}'.format(authtoken))
-			privkey = open(self.privatekeyLocation,'rb').read()
+			privkey = open(self.privatekeylocation,'rb').read()
 			rsakey = RSA.importKey(privkey)
 			rsakey = PKCS1_v1_5.new(rsakey)
 			token = rsakey.decrypt(authtoken, -1)
 			print('the decrypted token is {} '.format(token))
 			print('sending token back to server...')
 			#encrypting with server public keys
-			pubkey = open(self.publickeyLocation).read()
+			pubkey = open(self.serverpublickeylocation).read()
 			prsakey = RSA.importKey(pubkey)
 			prsakey = PKCS1_v1_5.new(prsakey)
 			token = prsakey.encrypt(token)
@@ -90,7 +97,7 @@ class client(object):
 		p7 = smime.sign(emailbuffer)
 	
 		#step 2: encrypting email
-		x509 = X509.load_cert('keys/email/recipient/recipient.pem')
+		x509 = X509.load_cert(self.serveremailkeylocation)
 		stack = X509.X509_Stack()
 		stack.push(x509)
 		smime.set_x509_stack(stack)

@@ -69,6 +69,7 @@ class sockethandler(threading.Thread):
 					rtoken = base64.b64decode(rtoken)
 					spriv = keyconfig.getConfigItem(Key.OwnPrivate)
 					print('server private key is located at {}'.format(spriv))
+					#decrypting authentication token
 					privkey = open(spriv,'r').read()
 					prsakey = RSA.importKey(privkey)
 					prsakey = PKCS1_v1_5.new(prsakey)
