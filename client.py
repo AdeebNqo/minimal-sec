@@ -37,7 +37,7 @@ class client(object):
 
 	keyconfig = None
 	serverpublickeylocation = None
-	serveremailkeylocation = None
+	serveremailcertlocation = None
 	def __init__(self, host, port):
 		#accessing key configuration file
 		self.keyconfig = KeyConfig('client')
@@ -117,7 +117,8 @@ class client(object):
 		p7 = smime.sign(emailbuffer)
 	
 		#step 2: encrypting email
-		x509 = X509.load_cert(self.serveremailkeylocation)
+		print('server email certificate: {}'.format(self.serveremailkeylocation))
+		x509 = X509.load_cert(self.serveremailcertlocation)
 		stack = X509.X509_Stack()
 		stack.push(x509)
 		smime.set_x509_stack(stack)
