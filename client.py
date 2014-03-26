@@ -139,6 +139,7 @@ class client(object):
 		smime.write(out,p7)
 		
 		server = smtplib.SMTP('smtp.gmail.com')
+		server.login('user','pass')
 		server.sendmail(From,to,out.read())
 		server.quit()
 
