@@ -14,10 +14,10 @@ Practical for securing communications between server and client.
 - [X] Improve entity authentication by using passphrases. Write libray to collect large corpus that gets updated regularly
 - [X] Send email
 - [X] Fix ascci encoding error with passphrases
-- [ ] Clean up keys
 - [ ] Setup file storage in server
 - [ ] Setup nonces
 - [ ] add email attachments
 
 ##Deprecated
 - UDP support
+- Server cannot decrypt files
