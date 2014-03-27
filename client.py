@@ -90,7 +90,7 @@ class client(object):
 		print('id is {}'.format(ID))
 		DETAILS = line[dashpos+1:]
 		iv = Random.new().read(AES.block_size);
-		self.send('{0}{1}{2}'.format('ID'.format(ID),base64.b64encode(self.security.encrypt(DETAILS,'AES', 'thisisakey', AES.MODE_CBC, iv)),self.security.hash('{0}{1}'.format(ID,DETAILS),'sha224')))
+		self.send('{0}{1}{2}'.format(ID ,base64.b64encode(self.security.encrypt(DETAILS,'AES', 'thisisakey', AES.MODE_CBC, iv)),self.security.hash('{0}{1}'.format(ID,DETAILS),'sha224')))
 	def disconnect(self):
 		self.sockt.close()
 	def send(self,data):
@@ -156,6 +156,7 @@ class client(object):
 			if (inputv==1):
 				inputv = input("Location of file:")
 				File = open(inputv,'r')
+				self.send('FILESEND')
 				self.sendFile(File)
 			elif(inputv==2):
 				self.sendEmail()
