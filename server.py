@@ -105,6 +105,7 @@ class sockethandler(threading.Thread):
 				f.close()
 				print('received data {}'.format(data))
 				self.send('FILERECIEVED')
+				print('file saved.')
 			else:
 				#connection lost
 				print('{} has disconnected from server.'.format(self.address))
@@ -114,7 +115,7 @@ class server():
 	sockt = None
 	def __init__(self,address):
 		#loading or creating (if not exists) db store for the files
-		if (os.path.exists(dbdatadir)):
+		if (os.path.exists(dbdatadir)==False):
 			#db store folder does not exist
 			os.mkdir(dbdatadir)
 		else:

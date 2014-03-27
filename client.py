@@ -92,8 +92,9 @@ class client(object):
 		iv = Random.new().read(AES.block_size);
 		self.send('{0} {1} {2}'.format(ID ,base64.b64encode(self.security.encrypt(DETAILS,'AES', 'thisisakey', AES.MODE_CBC, iv)),self.security.hash('{0}{1}'.format(ID,DETAILS),'sha224')))
 		response = self.sockt.recv(1024)
-		if (response=='FILERECEIVED'):
+		if (response=='FILERECIEVED'):
 			print('file stored safely...')
+		print('server says {}'.format(response))
 	
 	def disconnect(self):
 		self.sockt.close()
