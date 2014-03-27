@@ -17,7 +17,9 @@ Practical for securing communications between server and client.
 - [X] Setup file storage in server
 - [ ] Setup nonces
 - [ ] add email attachments
-
+- [ ] cleanup cc issue in email
+- [ ] cleanup file storage to be able to push folders in server
+- [ ] keyexchange between client and server for encrypting files
 ##Deprecated
 - UDP support
 - Server cannot decrypt files
