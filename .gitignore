@@ -1,5 +1,5 @@
 *.swp
 *~
 *.pyc
-dbdata/
+datadb/
 test_files/
