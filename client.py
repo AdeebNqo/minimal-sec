@@ -24,6 +24,7 @@ from keyconfig import Key
 from keyconfig import KeyConfig
 import smtplib
 from email.mime.text import MIMEText
+from security import security
 
 blocksize = 16 #Block size for the encryption
 
@@ -77,16 +78,19 @@ class client(object):
 			token = rsakey.decrypt(authtoken, -1)
 			if (token!=-1):
 				#if the token has been successfully decrypted
+				print('server response successfully decrypted.')
 				vals = token.split()
 				nonce = vals[1]
 				token = vals[0]
 				rtoken = self.security.hash('{0} {1}'.format(nonce,token),'sha512')
+				print('sending rtoken:{} to the server'.format(rtoken))
 				#encrypting with server public keys
 				pubkey = open(self.serverpublickeylocation).read()
 				prsakey = RSA.importKey(pubkey)
 				prsakey = PKCS1_v1_5.new(prsakey)
 				token = prsakey.encrypt(rtoken)
 				self.send(base64.b64encode(rtoken))
+				print('done sending...')
 			else:
 				#could not decrypt server question thus cannot complete 3way handshake
 				raise Exception('Could not decode server response. 3 way handshake failed.')

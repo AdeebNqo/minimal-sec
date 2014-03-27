@@ -37,7 +37,7 @@ class sockethandler(threading.Thread):
 	authenticated = False
 	security = None #Object that has utility security methods
 	def __init__(self,conn, addr):
-		security = security()
+		self.security = security()
 		clients = keyconfig.getConfigItem(Key.OtherParties) #retrieving all clients authorized to access server
 		for client in clients:
 			registeredclients[client.username] = client.publickey
@@ -79,7 +79,7 @@ class sockethandler(threading.Thread):
 					print('client has responded. Now decoding response..')
 					rtoken = base64.b64decode(rtoken)
 					spriv = keyconfig.getConfigItem(Key.OwnPrivate)
-					print('server private key is located at {}'.format(spriv))
+					print('recieved rtoken: {} from client'.format(rtoken))
 					#decrypting authentication token
 					privkey = open(spriv,'r').read()
 					prsakey = RSA.importKey(privkey)
