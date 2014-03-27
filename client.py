@@ -137,10 +137,15 @@ class client(object):
 			out.write(ccline % tuple(ccList))
 		out.write('Subject: {}\n'.format(subject))
 		smime.write(out,p7)
-		
-		server = smtplib.SMTP('smtp.gmail.com')
-		server.login('user','pass')
+		print('connecting to email server...')
+		server = smtplib.SMTP('smtp.gmail.com',587)
+		server.ehlo()
+                server.starttls()
+		print('loging in...')
+		server.login('nishutch001','nishutch2014')
+		print('sending email...')
 		server.sendmail(From,to,out.read())
+		print('closing email server connection...')
 		server.quit()
 
 	def interface(self):
