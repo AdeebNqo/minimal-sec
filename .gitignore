@@ -1,3 +1,5 @@
 *.swp
 *~
 *.pyc
+dbdata/
+test_files/
