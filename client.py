@@ -142,6 +142,7 @@ class client(object):
 		server.ehlo()
                 server.starttls()
 		print('loging in...')
+		#server.login(raw_input('Email server username:\n'),raw_input('Email server password:\n'))
 		server.login('nishutch001','nishutch2014')
 		print('sending email...')
 		server.sendmail(From,to,out.read())
