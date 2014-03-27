@@ -100,7 +100,7 @@ class sockethandler(threading.Thread):
 				#accepting incoming file
 				data = self.connection.recv(8000).strip()
 				ID = data.split()[0]
-				f = open('{0}/{1}.nqo'.format(dbdatadir,ID),'wb+')
+				f = open('{0}/{1}.nqo'.format(dbdatadir,ID),'w+')
 				f.write(data)
 				f.close()
 				print('received data {}'.format(data))
