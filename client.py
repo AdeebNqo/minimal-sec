@@ -75,14 +75,21 @@ class client(object):
 			rsakey = RSA.importKey(privkey)
 			rsakey = PKCS1_v1_5.new(rsakey)
 			token = rsakey.decrypt(authtoken, -1)
-			print('the decrypted token is {} '.format(token))
-			print('sending token back to server...')
-			#encrypting with server public keys
-			pubkey = open(self.serverpublickeylocation).read()
-			prsakey = RSA.importKey(pubkey)
-			prsakey = PKCS1_v1_5.new(prsakey)
-			token = prsakey.encrypt(token)
-			self.send(base64.b64encode(token))
+			if (token!=-1):
+				#if the token has been successfully decrypted
+				vals = token.split()
+				nonce = vals[1]
+				token = vals[0]
+				rtoken = self.security.hash('{0} {1}'.format(nonce,token),'sha512')
+				#encrypting with server public keys
+				pubkey = open(self.serverpublickeylocation).read()
+				prsakey = RSA.importKey(pubkey)
+				prsakey = PKCS1_v1_5.new(prsakey)
+				token = prsakey.encrypt(rtoken)
+				self.send(base64.b64encode(rtoken))
+			else:
+				#could not decrypt server question thus cannot complete 3way handshake
+				raise Exception('Could not decode server response. 3 way handshake failed.')
 	def sendFile(self,File):
 		line = File.readline()
 		dashpos = line.find('-') #Dash position

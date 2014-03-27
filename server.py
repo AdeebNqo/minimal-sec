@@ -20,6 +20,7 @@ import base64
 from keyconfig import KeyConfig
 from keyconfig import Key
 import passphrase
+from security import security
 
 registeredclients = {}
 connectedclients = {}
@@ -34,8 +35,9 @@ class sockethandler(threading.Thread):
 	address = None
 	connection_up = True
 	authenticated = False
+	security = None #Object that has utility security methods
 	def __init__(self,conn, addr):
-
+		security = security()
 		clients = keyconfig.getConfigItem(Key.OtherParties) #retrieving all clients authorized to access server
 		for client in clients:
 			registeredclients[client.username] = client.publickey
@@ -60,6 +62,9 @@ class sockethandler(threading.Thread):
 					print('client is registered.')
 					token = passphrase.getpassphrase().encode('ascii', 'ignore')
 					print('generated passphrase is {}'.format(token))
+					#generating nonce and sending it to client alongside token
+					nonce = random.randint(0,9000000)
+					token = '{0} {1}'.format(token,nonce)
 					#encrypting
 					pubkey = open(registeredclients[clientname],'r').read()
 					rsakey = RSA.importKey(pubkey)
@@ -85,9 +90,10 @@ class sockethandler(threading.Thread):
 						self.connection.close()
 						raise Exception('Decryption of client token failed.')
 					else:
-						if (rtoken==token):
+						#computing hash of cached nonce and random token to compare with client response
+						self.authenticated = (self.security.hash('{1} {0}'.format(token,nonce),'sha512')==rtoken)
+						if (self.authenticated):
 							print('entity authentication successful.')
-							self.authenticated = True
 						else:
 							print('entity authentication unsuccessful')
 							self.connection_up = False
