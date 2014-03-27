@@ -15,11 +15,14 @@ Practical for securing communications between server and client.
 - [X] Send email
 - [X] Fix ascci encoding error with passphrases
 - [X] Setup file storage in server
-- [ ] Setup nonces
+- [X] Setup nonces
+- [ ] Fix encryption in 3way handshake
 - [ ] add email attachments
 - [ ] cleanup cc issue in email
 - [ ] cleanup file storage to be able to push folders in server
-- [ ] keyexchange between client and server for encrypting files
+- [X] keyexchange between client and server for encrypting files
+- [ ] Verify correctness of padding scheme in security
+- [ ] support long body in email
 ##Deprecated
 - UDP support
 - Server cannot decrypt files
