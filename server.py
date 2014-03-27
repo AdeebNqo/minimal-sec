@@ -26,6 +26,8 @@ connectedclients = {}
 server_up = True
 keyconfig = KeyConfig('server')
 
+dbfiles = []
+
 class sockethandler(threading.Thread):
 	connection = None
 	address = None
@@ -98,6 +100,16 @@ class sockethandler(threading.Thread):
 class server():
 	sockt = None
 	def __init__(self,address):
+		currdir = '{}/datadb'.format(os.getcwd())
+		#loading or creating (if not exists) db store for the files
+		if (os.path.exists(currdir)):
+			#db store folder does not exist
+			os.mkdir(currdir)
+		else:
+			#loading existing files
+			for files in os.walk(currdir):
+				for File in files:
+					dbfiles.append(File)
 		self.sockt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.sockt.bind(address)
 		self.sockt.listen(1)
