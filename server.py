@@ -26,12 +26,14 @@ connectedclients = {}
 server_up = True
 keyconfig = KeyConfig('server')
 
+dbdatadir = '{}/datadb'.format(os.getcwd())
 dbfiles = []
 
 class sockethandler(threading.Thread):
 	connection = None
 	address = None
 	connection_up = True
+	authenticated = False
 	def __init__(self,conn, addr):
 
 		clients = keyconfig.getConfigItem(Key.OtherParties) #retrieving all clients authorized to access server
@@ -85,6 +87,7 @@ class sockethandler(threading.Thread):
 					else:
 						if (rtoken==token):
 							print('entity authentication successful.')
+							self.authenticated = True
 						else:
 							print('entity authentication unsuccessful')
 							self.connection_up = False
@@ -92,6 +95,16 @@ class sockethandler(threading.Thread):
 				else:
 					print('client not registered')
 					self.send('101 CONNECT FAILED')
+			elif (data=='FILESEND'):
+				print('reading in the recieved file..')
+				#accepting incoming file
+				data = self.connection.recv(8000).strip()
+				ID = data.split()[0]
+				f = open('{0}/{1}.nqo'.format(dbdatadir,ID),'wb+')
+				f.write(data)
+				f.close()
+				print('received data {}'.format(data))
+				self.send('FILERECIEVED')
 			else:
 				#connection lost
 				print('{} has disconnected from server.'.format(self.address))
@@ -100,14 +113,13 @@ class sockethandler(threading.Thread):
 class server():
 	sockt = None
 	def __init__(self,address):
-		currdir = '{}/datadb'.format(os.getcwd())
 		#loading or creating (if not exists) db store for the files
-		if (os.path.exists(currdir)):
+		if (os.path.exists(dbdatadir)):
 			#db store folder does not exist
-			os.mkdir(currdir)
+			os.mkdir(dbdatadir)
 		else:
 			#loading existing files
-			for files in os.walk(currdir):
+			for files in os.walk(dbdatadir):
 				for File in files:
 					dbfiles.append(File)
 		self.sockt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -122,8 +134,6 @@ class server():
 			handler.start()
 		
 if __name__=='__main__':
-	#handling contrl-c
-	#ToDo: read server config
 	addr = ('localhost',7778)
 	servr = server(addr)
 	servr.handle()
