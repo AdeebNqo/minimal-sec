@@ -13,7 +13,7 @@ Practical for securing communications between server and client.
 - [X] Setup config file in server
 - [X] Improve entity authentication by using passphrases. Write libray to collect large corpus that gets updated regularly
 - [X] Send email
-- [ ] Fix ascci encoding error with passphrases
+- [X] Fix ascci encoding error with passphrases
 - [ ] Clean up keys
 - [ ] Setup file storage in server
 - [ ] Setup nonces
