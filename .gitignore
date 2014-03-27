@@ -3,3 +3,4 @@
 *.pyc
 datadb/
 test_files/
+M2Crypto/PGP/
