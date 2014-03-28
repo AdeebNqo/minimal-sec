@@ -67,51 +67,51 @@ class client(object):
 		#initiate three-way handshake
 		self.send('CONNECT {}'.format(self.username))
 		response = self.sockt.recv(1024).strip()
-		print('RESULT: server response is {}'.format(response))
+		#print('RESULT: server response is {}'.format(response))
 		if (response=='101 CONNECT FAILED'):
 			raise Exception('Connection failed 101. Client not recognized')
 		else:
 			#Here lies dragons --- taking response from server and desembling it
 			authtokensplit = response.split()
 			Ethreewaykey = base64.b64decode(authtokensplit[0])
-			print('RESULT: Ethreewaykey {}'.format(authtokensplit[0]))
+			#print('RESULT: Ethreewaykey {}'.format(authtokensplit[0]))
 			Etoken = base64.b64decode(''.join(authtokensplit[1:]))
-			print('RESULT: Etoken {}'.format(''.join(authtokensplit[1:])))
-			print('STATUS: decrypting server gen 3way session key...')
+			#print('RESULT: Etoken {}'.format(''.join(authtokensplit[1:])))
+			#print('STATUS: decrypting server gen 3way session key...')
 			#Decrypting the threeway session key so that i can extract the token and nonce
 			privkey = open(self.privatekeylocation,'rb').read()
 			rsakey = RSA.importKey(privkey)
 			rsakey = PKCS1_v1_5.new(rsakey)
 			threewaykey = rsakey.decrypt(Ethreewaykey, -1)
-			print('RESULT: threeway key: {}'.format(threewaykey))
+			#print('RESULT: threeway key: {}'.format(threewaykey))
 			if (threewaykey!=-1):
 				#if the threeway session key has been successfully decrypted
-				print('STATUS: decrypting (token,nonce) pair...')
+				#print('STATUS: decrypting (token,nonce) pair...')
 				#decrypting the (token,nonce) with the threeway session key
 				tokenpair = self.security.decrypt(Etoken,'AES',threewaykey,AES.MODE_CBC)
-				print('RESULT: tokennoncepair is : {}'.format(tokenpair))
-				print('STATUS: generating another 3way session key...')
+				#print('RESULT: tokennoncepair is : {}'.format(tokenpair))
+				#print('STATUS: generating another 3way session key...')
 				#generating another random key for encrypting the token nonce pair
 				pool = map(chr,range(97,123))+map(chr,range(65,91))+map(chr,range(48,57))
 				random.shuffle(pool)
 				Clientthreewaykey = ''.join(pool[0:32])
-				print('RESULT: Clientthreewaykey {}'.format(Clientthreewaykey))
-				print('STATUS: encrypting (token,nonce) pair...')
+				#print('RESULT: Clientthreewaykey {}'.format(Clientthreewaykey))
+				#print('STATUS: encrypting (token,nonce) pair...')
 				#encrypting (token,nonce) pair with random key -- AES
 				Etokenpair = self.security.encrypt(tokenpair,'AES',Clientthreewaykey,AES.MODE_CBC)
 				Etokenpair = base64.b64encode(Etokenpair)
-				print('RESULT: Encrypted token pair: {}'.format(Etokenpair))
-				print('STATUS: encrypting client gen 3way session key...')
+				#print('RESULT: Encrypted token pair: {}'.format(Etokenpair))
+				#print('STATUS: encrypting client gen 3way session key...')
 				#encrypting client generated threeway session key with server public keys
 				pubkey = open(self.serverpublickeylocation).read()
 				prsakey = RSA.importKey(pubkey)
 				prsakey = PKCS1_v1_5.new(prsakey)
 				EClientthreewaykey = base64.b64encode(prsakey.encrypt(Clientthreewaykey))
-				print('RESULT: Encryptedthreewaykey {}'.format(EClientthreewaykey))
-				print('STATUS: Encrypted client gen threeway key: {}'.format(EClientthreewaykey))
+				#print('RESULT: Encryptedthreewaykey {}'.format(EClientthreewaykey))
+				#print('STATUS: Encrypted client gen threeway key: {}'.format(EClientthreewaykey))
 				#sending  E_s(k)||E_aes(token||nonce) to server
 				cresponse = '{0} {1}'.format(EClientthreewaykey,Etokenpair)
-				print('STATUS: sending {} to the server'.format(cresponse))
+				#print('STATUS: sending {} to the server'.format(cresponse))
 				self.send(cresponse)
 				print('STATUS: done sending...')
 			else:
@@ -124,11 +124,22 @@ class client(object):
 		print('id is {}'.format(ID))
 		DETAILS = line[dashpos+1:]
 		iv = Random.new().read(AES.block_size);
-		self.send('{0} {1} {2}'.format(ID ,base64.b64encode(self.security.encrypt(DETAILS,'AES', 'thisisakey', AES.MODE_CBC, iv)),self.security.hash('{0}{1}'.format(ID,DETAILS),'sha512')))
-		response = self.sockt.recv(1024)
-		if (response=='FILERECIEVED'):
-			print('file stored safely...')
-		print('server says {}'.format(response))
+		#Encrypting hash of id and details with owners private key
+		hashX = self.security.hash('{0}{1}'.format(ID,DETAILS),'sha512')
+		privkey = open(self.privatekeylocation,'rb').read()
+		rsakey = RSA.importKey(privkey)
+		rsakey = PKCS1_v1_5.new(rsakey)
+		signedHash = rsakey.encrypt(hashX, -1)
+		if (signedHash!=-1):
+			self.send('{0} {1} {2}'.format(ID ,base64.b64encode(self.security.encrypt(DETAILS,'AES', 'thisisakey', AES.MODE_CBC, iv)),signedHash))
+			response = self.sockt.recv(1024)
+			if (response=='FILERECIEVED'):
+				print('file stored safely...')
+			elif (response=='FILECHANGED'):
+				print('File has been corrupted. Server received altered file.')
+			print('server says {}'.format(response))
+		else:
+			print('could not send file. Signing failed.')
 	
 	def disconnect(self):
 		self.sockt.close()

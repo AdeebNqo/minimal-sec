@@ -56,41 +56,41 @@ class sockethandler(threading.Thread):
 		while 1:
 			print('waiting for data...')
 			data = self.connection.recv(1024).strip()
-			print('server received -{}-'.format(data))
+			#print('server received -{}-'.format(data))
 			if (data.startswith('CONNECT')):
 				print('client attempting to connect...')
 				clientname = data.split()[1]
 				if (clientname in registeredclients.keys()):
-					print('STATUS: client is registered.')
-					print('STATUS: generating nonce and token...')
+					#print('STATUS: client is registered.')
+					#print('STATUS: generating nonce and token...')
 					token = passphrase.getpassphrase().encode('ascii', 'ignore').replace('\n', ' ').replace('\r', '')
-					print('STATUS: done generating token.')
+					#print('STATUS: done generating token.')
 					#generating nonce and sending it to client alongside token
 					nonce = random.randint(0,9000000)
-					print('RESULT: nonce  {}'.format(nonce))
+					#print('RESULT: nonce  {}'.format(nonce))
 					token = '{1} {0}'.format(token,nonce)
-					print('RESULT: token  {}'.format(token))
-					print('STATUS: generating 3way session key')
+					#print('RESULT: token  {}'.format(token))
+					#print('STATUS: generating 3way session key')
 					#Generating key to encrypt the data
 					pool = map(chr,range(97,123))+map(chr,range(65,91))+map(chr,range(48,57))
 					random.shuffle(pool)
 					threewaykey = ''.join(pool[0:32])
-					print('RESULT: session key  {}'.format(threewaykey))
-					print('STATUS: encrypting server threeway session key...')
+					#print('RESULT: session key  {}'.format(threewaykey))
+					#print('STATUS: encrypting server threeway session key...')
 					#encrypting the threeway session key
 					pubkey = open(registeredclients[clientname],'r').read()
 					rsakey = RSA.importKey(pubkey)
 					rsakey = PKCS1_v1_5.new(rsakey)
 					Ethreewaykey = base64.b64encode(rsakey.encrypt(threewaykey)) #Encrypted three way key
-					print('RESULT: Encrypted session key: {}'.format(Ethreewaykey))
-					print('STATUS: encrypting token with session key...')
+					#print('RESULT: Encrypted session key: {}'.format(Ethreewaykey))
+					#print('STATUS: encrypting token with session key...')
 					#encrypting the actual (token, nonce) combination
 					etoken = base64.b64encode(self.security.encrypt(token,'AES',threewaykey,AES.MODE_CBC)),
-					print('RESULT: encrypted token: {}'.format(etoken))
-					print('STATUS: appending etoken to ethreewaykey')
+					#print('RESULT: encrypted token: {}'.format(etoken))
+					#print('STATUS: appending etoken to ethreewaykey')
 					authtoken = '{1} {0}'.format(etoken, Ethreewaykey)
-					print('RESULT: appended token and key {}'.format(authtoken))
-					print('STATUS: sending result to server')
+					#print('RESULT: appended token and key {}'.format(authtoken))
+					#print('STATUS: sending result to server')
 					self.send(authtoken)
 					print('STATUS: sent authtoken')
 					
@@ -102,37 +102,37 @@ class sockethandler(threading.Thread):
 					print('STATUS: waiting for client response...')
 					#Retrieve response from client
 					cresponse = self.connection.recv(1024).strip()
-					print('STATUS: client has responded. Now decoding response..')
-					print('RESULT: client response is {}'.format(cresponse))
+					#print('STATUS: client has responded. Now decoding response..')
+					#print('RESULT: client response is {}'.format(cresponse))
 					#breaking up response to E_s(k) and E_aes(token||nonce), that is, to encrypted key and encrypted (token,nonce) pair
 					vals = cresponse.split()
 					EClientthreewaykey = base64.b64decode(vals[0])
 					Etokennoncepair = base64.b64decode(''.join(vals[1:]))
 					
-					print('RESULT: Ethreewaykey {}'.format(EClientthreewaykey))
-					print('RESULT: Etokennoncepair {}'.format(Etokennoncepair))
-					print ('STATUS: decrypting client created 3way key..')
+					#print('RESULT: Ethreewaykey {}'.format(EClientthreewaykey))
+					#print('RESULT: Etokennoncepair {}'.format(Etokennoncepair))
+					#print ('STATUS: decrypting client created 3way key..')
 					#decrypint client created threeway session key
 					spriv = keyconfig.getConfigItem(Key.OwnPrivate)
 					privkey = open(spriv,'r').read()
 					prsakey = RSA.importKey(privkey)
 					prsakey = PKCS1_v1_5.new(prsakey)
 					Clientthreewaykey = prsakey.decrypt(EClientthreewaykey,-1)
-					print('RESULT: clientcreated 3way session key is {}'.format(Clientthreewaykey))
+					#print('RESULT: clientcreated 3way session key is {}'.format(Clientthreewaykey))
 			
 					#decrypting (token,nonce) pair using the client created threeway session key
-					print('STATUS: decrypting token,nonce pair with key')
+					#print('STATUS: decrypting token,nonce pair with key')
 					tokennoncepair = self.security.decrypt(Etokennoncepair,'AES',Clientthreewaykey,AES.MODE_CBC)
 					tokennoncelist = tokennoncepair.split()
-					print('RESULT: (token,nonce) list: {}'.format(tokennoncelist))
+					#print('RESULT: (token,nonce) list: {}'.format(tokennoncelist))
 					tokenX = ' '.join(tokennoncelist[:])
 					if (Clientthreewaykey==-1):
 						self.connection.close()
 						raise Exception('Decryption of client token failed.')
 					else:
 						#comparing cached nonce and token with client's response
-						print('X is last one')
-						print('STATUS: comparing {0} and {1}'.format(token,tokenX))
+						#print('X is last one')
+						#print('STATUS: comparing {0} and {1}'.format(token,tokenX))
 						self.authenticated = token==tokenX
 						if (self.authenticated):
 							print('entity authentication successful.')
@@ -147,7 +147,11 @@ class sockethandler(threading.Thread):
 				print('reading in the recieved file..')
 				#accepting incoming file
 				data = self.connection.recv(8000).strip()
-				ID = data.split()[0]
+				fileitems = data.split()
+				print('file items are : '.format(fileitems))
+				ID = fileitems[0]
+				#decrypting file details
+				#self.security.decrypt()
 				f = open('{0}/{1}.nqo'.format(dbdatadir,ID),'w+')
 				f.write(data)
 				f.close()
