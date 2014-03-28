@@ -76,7 +76,7 @@ class security():
 	# Method for padding the text for encryption
 	#
 	def pad(self,data):
-		rem = length = 16 - (len(data) % 16)
+		rem = length = AES.block_size - (len(data) % AES.block_size)
 		for i in range(rem):
 			data=data+str(rem)
 		return data
