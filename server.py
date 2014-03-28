@@ -107,6 +107,7 @@ class sockethandler(threading.Thread):
 					#decrypting (token,nonce) pair using the client created threeway session key
 					tokennoncepair = self.security.decrypt(Etokennoncepair,'AES',Clientthreewaykey,AES.MODE_CBC)
 					tokennoncelist = tokennoncepair.split()
+					print('(token,nonce) list: {}'.format(tokennoncelist))
 					tokenX = tokennoncelist[0]
 					nonceX = tokennoncelist[1]
 					if (Clientthreewaykey==-1):
