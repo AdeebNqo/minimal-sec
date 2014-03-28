@@ -134,7 +134,7 @@ class client(object):
 		rsakey = RSA.importKey(privkey)
 		signer = pkc.new(rsakey)
 		signedHash = signer.sign(hashX)
-		self.send('{0}\t{1}\t{2}'.format(ID ,base64.b64encode(self.security.encrypt(DETAILS,'AES', 'thisisakey', AES.MODE_CBC)),signedHash))
+		self.send('{0}\t{1}\t{2}'.format(ID ,base64.b64encode(self.security.encrypt(DETAILS,'AES', 'thisisalocalmasterkey', AES.MODE_CBC)),signedHash))
 		response = self.sockt.recv(1024)
 		if (response=='FILERECIEVED'):
 			print('file stored safely...')
@@ -209,10 +209,16 @@ class client(object):
 		#server.login(raw_input('Email server username:\n'),raw_input('Email server password:\n'))
 		server.login('nishutch001','nishutch2014')
 		print('sending email...')
-		server.sendmail(From,to,out.read())
+		server.sendmail(erom,to,out.read())
 		print('closing email server connection...')
 		server.quit()
-
+	def retrieveFile(self,ID):
+		self.send('FILERETRIEVE')
+		print('sending id..')
+		self.send(ID)
+		print('waiting for edetails...')
+		#wait for encrypted details of file
+		edetails = self.sockt.recv(3000)
 	def interface(self):
 		inputv = ''			
 		while (inputv!='q'):
@@ -225,7 +231,7 @@ class client(object):
 			elif(inputv==2):
 				self.sendEmail()
 			elif (inputv==3):
-				print('')
+				self.retrieveFile(raw_input('ID:'))
 			elif (inputv==4):
 				self.disconnect()
 				print('shutting down...')

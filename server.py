@@ -41,6 +41,7 @@ class sockethandler(threading.Thread):
 	authenticated = False
 	security = None #Object that has utility security methods
 	clientname = None
+	clientdbfolder = None
 	def __init__(self,conn, addr):
 		self.security = security()
 		clients = keyconfig.getConfigItem(Key.OtherParties) #retrieving all clients authorized to access server
@@ -59,12 +60,17 @@ class sockethandler(threading.Thread):
 		while 1:
 			print('waiting for data...')
 			data = self.connection.recv(1024).strip()
-			#print('server received -{}-'.format(data))
+			print('server received -{}-'.format(data))
 			if (data.startswith('CONNECT')):
 				print('client attempting to connect...')
 				clientname = data.split()[1]
 				self.clientname = clientname
 				if (clientname in registeredclients.keys()):
+					#checkig if db entry for client's files exists -- if not create it
+					if (os.path.exists(dbdatadir)==False):
+						#db store-entry folder does not exist
+						self.clientdbfolder = '{0}/{1}'.format(dbdatadir,clientname)
+						os.mkdir(self.clientdbfolder)
 					#print('STATUS: client is registered.')
 					#print('STATUS: generating nonce and token...')
 					token = passphrase.getpassphrase().encode('ascii', 'ignore').replace('\n', ' ').replace('\r', '')
@@ -147,6 +153,12 @@ class sockethandler(threading.Thread):
 				else:
 					print('client not registered')
 					self.send('101 CONNECT FAILED')
+			elif (data=='FILERETRIEVE'):
+				print('waiting for file id')
+				ID = self.connection.recv(1024)
+				f = open('{0}/{1}'.format(self.clientdbfolder, ID))
+				filedata = '\n'.join(f.readlines())
+				print(filedata)
 			elif (data=='FILESEND'):
 				print('reading in the recieved file..')
 				#accepting incoming file
