@@ -67,9 +67,9 @@ class sockethandler(threading.Thread):
 				self.clientname = clientname
 				if (clientname in registeredclients.keys()):
 					#checkig if db entry for client's files exists -- if not create it
-					if (os.path.exists(dbdatadir)==False):
+					self.clientdbfolder = '{0}/{1}'.format(dbdatadir,clientname)
+					if (os.path.exists(self.clientdbfolder)==False):
 						#db store-entry folder does not exist
-						self.clientdbfolder = '{0}/{1}'.format(dbdatadir,clientname)
 						os.mkdir(self.clientdbfolder)
 					#print('STATUS: client is registered.')
 					#print('STATUS: generating nonce and token...')
@@ -156,9 +156,10 @@ class sockethandler(threading.Thread):
 			elif (data=='FILERETRIEVE'):
 				print('waiting for file id')
 				ID = self.connection.recv(1024)
-				f = open('{0}/{1}'.format(self.clientdbfolder, ID))
+				f = open('{0}/{1}.nqo'.format(self.clientdbfolder, ID))
 				filedata = '\n'.join(f.readlines())
-				print(filedata)
+				fileitems = filedata.split(' .\t. ')
+				self.send(filedata[1])
 			elif (data=='FILESEND'):
 				print('reading in the recieved file..')
 				#accepting incoming file
@@ -181,7 +182,7 @@ class sockethandler(threading.Thread):
 				Hash = True if verifier.verify(SHA.new('{0} {1}'.format(ID,details)),base64.b64decode(signedHash)) else False
 				print('HashEQUAL? {}'.format(Hash))				
 				if (Hash):
-					f = open('{0}/{1}.nqo'.format(clientdbfolder,ID),'w+')
+					f = open('{0}/{1}.nqo'.format(self.clientdbfolder,ID),'w+')
 					f.write(data)
 					f.close()
 					self.send('FILERECIEVED')

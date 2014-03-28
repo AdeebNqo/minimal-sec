@@ -224,7 +224,7 @@ class client(object):
 		self.send(ID)
 		print('waiting for edetails...')
 		#wait for encrypted details of file
-		edetails = self.sockt.recv(3000)
+		edetails = base64.b64decode(self.sockt.recv(3000))
 		details = self.security.decrypt(edetails,'AES','thisisalocalmasterkey',AES.MODE_CBC)
 		return details
 	def interface(self):
@@ -239,7 +239,7 @@ class client(object):
 			elif(inputv==2):
 				self.sendEmail()
 			elif (inputv==3):
-				self.retrieveFile(raw_input('ID:'))
+				print(self.retrieveFile(raw_input('ID:')))
 			elif (inputv==4):
 				self.disconnect()
 				print('shutting down...')
