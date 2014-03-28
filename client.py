@@ -187,15 +187,15 @@ class client(object):
 		p7 = smime.sign(emailbuffer)
 	
 		#step 2: encrypting email
-		x509 = X509.load_cert(self.serveremailcertlocation)
-		stack = X509.X509_Stack()
-		stack.push(x509)
-		smime.set_x509_stack(stack)
+		#x509 = X509.load_cert(self.serveremailcertlocation)
+		#stack = X509.X509_Stack()
+		#stack.push(x509)
+		#smime.set_x509_stack(stack)
 
-		smime.set_cipher(SMIME.Cipher('des_ede3_cbc'))
-		tmp = BIO.MemoryBuffer()
-		smime.write(tmp, p7, emailbuffer)
-		p7 = smime.encrypt(tmp)
+		#smime.set_cipher(SMIME.Cipher('des_ede3_cbc'))
+		#tmp = BIO.MemoryBuffer()
+		#smime.write(tmp, p7, emailbuffer)
+		#p7 = smime.encrypt(tmp)
 		
 		out = BIO.MemoryBuffer()
 		out.write('From: {}\n'.format(From))
@@ -215,7 +215,7 @@ class client(object):
 		#server.login(raw_input('Email server username:\n'),raw_input('Email server password:\n'))
 		server.login('nishutch001','nishutch2014')
 		print('sending email...')
-		server.sendmail(erom,to,out.read())
+		server.sendmail(From,to,out.read())
 		print('closing email server connection...')
 		server.quit()
 	def retrieveFile(self,ID):
