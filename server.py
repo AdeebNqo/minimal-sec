@@ -61,60 +61,80 @@ class sockethandler(threading.Thread):
 				print('client attempting to connect...')
 				clientname = data.split()[1]
 				if (clientname in registeredclients.keys()):
-					print('client is registered.')
-					print('generating nonce and token...')
+					print('STATUS: client is registered.')
+					print('STATUS: generating nonce and token...')
 					token = passphrase.getpassphrase().encode('ascii', 'ignore')
-					print('done generating token.')
+					print('STATUS: done generating token.')
 					#generating nonce and sending it to client alongside token
 					nonce = random.randint(0,9000000)
-					print('done generating nonce.')
-					token = '{0} {1}'.format(token,nonce)
-					
-					print('generating 3way session key')
+					print('RESULT: nonce  {}'.format(nonce))
+					token = '{1} {0}'.format(token,nonce)
+					print('RESULT: token  {}'.format(token))
+					print('STATUS: generating 3way session key')
 					#Generating key to encrypt the data
 					pool = map(chr,range(97,123))+map(chr,range(65,91))+map(chr,range(48,57))
 					random.shuffle(pool)
 					threewaykey = ''.join(pool[0:32])
-					print('the session key is {}'.format(threewaykey))
-					print('encrypting server threeway session key...')
+					print('RESULT: session key  {}'.format(threewaykey))
+					print('STATUS: encrypting server threeway session key...')
 					#encrypting the threeway session key
 					pubkey = open(registeredclients[clientname],'r').read()
 					rsakey = RSA.importKey(pubkey)
 					rsakey = PKCS1_v1_5.new(rsakey)
 					Ethreewaykey = base64.b64encode(rsakey.encrypt(threewaykey)) #Encrypted three way key
-					print('encrypting data with session key...')
+					print('RESULT: Encrypted session key: {}'.format(Ethreewaykey))
+					print('STATUS: encrypting token with session key...')
 					#encrypting the actual (token, nonce) combination
-					authtoken = '{1} {0}'.format(base64.b64encode(self.security.encrypt(token,'AES',threewaykey,AES.MODE_CBC)), Ethreewaykey)
-					print('encrypted token is {}'.format(authtoken))
+					etoken = base64.b64encode(self.security.encrypt(token,'AES',threewaykey,AES.MODE_CBC)),
+					print('RESULT: encrypted token: {}'.format(etoken))
+					print('STATUS: appending etoken to ethreewaykey')
+					authtoken = '{1} {0}'.format(etoken, Ethreewaykey)
+					print('RESULT: appended token and key {}'.format(authtoken))
+					print('STATUS: sending result to server')
 					self.send(authtoken)
-					print('sent authtoken')
-					print('waiting for client response...')
+					print('STATUS: sent authtoken')
+					
+					#
+					# Last step.
+					# Getting response from client and comparing nonces and tokens
+					#
+				
+					print('STATUS: waiting for client response...')
 					#Retrieve response from client
 					cresponse = self.connection.recv(1024).strip()
-					print('client has responded. Now decoding response..')
+					print('STATUS: client has responded. Now decoding response..')
+					print('RESULT: client response is {}'.format(cresponse))
 					#breaking up response to E_s(k) and E_aes(token||nonce), that is, to encrypted key and encrypted (token,nonce) pair
 					vals = cresponse.split()
 					EClientthreewaykey = base64.b64decode(vals[0])
-					Etokennoncepair = base64.b64decode(vals[1])
+					Etokennoncepair = base64.b64decode(''.join(vals[1:]))
 					
+					print('RESULT: Ethreewaykey {}'.format(EClientthreewaykey))
+					print('RESULT: Etokennoncepair {}'.format(Etokennoncepair))
+					print ('STATUS: decrypting client created 3way key..')
 					#decrypint client created threeway session key
 					spriv = keyconfig.getConfigItem(Key.OwnPrivate)
 					privkey = open(spriv,'r').read()
 					prsakey = RSA.importKey(privkey)
 					prsakey = PKCS1_v1_5.new(prsakey)
 					Clientthreewaykey = prsakey.decrypt(EClientthreewaykey,-1)
-					
+					print('RESULT: clientcreated 3way session key is {}'.format(Clientthreewaykey))
+			
 					#decrypting (token,nonce) pair using the client created threeway session key
+					print('STATUS: decrypting token,nonce pair with key')
 					tokennoncepair = self.security.decrypt(Etokennoncepair,'AES',Clientthreewaykey,AES.MODE_CBC)
 					tokennoncelist = tokennoncepair.split()
-					print('(token,nonce) list: {}'.format(tokennoncelist))
-					tokenX = tokennoncelist[0]
-					nonceX = tokennoncelist[1]
+					print('RESULT: (token,nonce) list: {}'.format(tokennoncelist))
+					tokenX = ''.join(tokennoncelist[1:])
+					nonceX = tokennoncelist[0]
 					if (Clientthreewaykey==-1):
 						self.connection.close()
 						raise Exception('Decryption of client token failed.')
 					else:
 						#comparing cached nonce and token with client's response
+						print('X is last one')
+						print('STATUS: comparing {0} and {1}'.format(token,tokenX))
+						print('STATUSS: comparing {0} and {1}'.format(nonce,nonceX))
 						self.authenticated = (token==tokenX and nonce==nonceX)
 						if (self.authenticated):
 							print('entity authentication successful.')

@@ -53,7 +53,7 @@ class client(object):
 		self.privatekeylocation = self.keyconfig.getConfigItem(Key.OwnPrivate)
 		
 	def connect(self):
-		print('connecting....')
+		print('STATUS: connecting....')
 		self.sockt.connect((self.host, self.port))
 		self.sockt.setblocking(1)
 		authServers = self.keyconfig.getConfigItem(Key.OtherParties) #retrieving all authorized servers
@@ -62,50 +62,58 @@ class client(object):
 			if (server.address==self.sockt.getpeername()[0]):
 				self.serverpublickeylocation=server.publickey
 				self.serveremailcertlocation=server.emailcert 	
-		print('connection established')
-		print('initiating 3 way handshake...')
+		print('STATUS: connection established')
+		print('STATUS: initiating 3 way handshake...')
 		#initiate three-way handshake
 		self.send('CONNECT {}'.format(self.username))
 		response = self.sockt.recv(1024).strip()
-		print('server response is {}'.format(response))
+		print('RESULT: server response is {}'.format(response))
 		if (response=='101 CONNECT FAILED'):
 			raise Exception('Connection failed 101. Client not recognized')
 		else:
 			#Here lies dragons --- taking response from server and desembling it
-			vals = response.split()
-			Ethreewaykey = base64.b64decode(vals[0])
-			Etoken = base64.b64decode(vals[1])
-			print('decrypting server gen 3way session key...')
+			authtokensplit = response.split()
+			Ethreewaykey = base64.b64decode(authtokensplit[0])
+			print('RESULT: Ethreewaykey {}'.format(authtokensplit[0]))
+			Etoken = base64.b64decode(''.join(authtokensplit[1:]))
+			print('RESULT: Etoken {}'.format(''.join(authtokensplit[1:])))
+			print('STATUS: decrypting server gen 3way session key...')
 			#Decrypting the threeway session key so that i can extract the token and nonce
 			privkey = open(self.privatekeylocation,'rb').read()
 			rsakey = RSA.importKey(privkey)
 			rsakey = PKCS1_v1_5.new(rsakey)
 			threewaykey = rsakey.decrypt(Ethreewaykey, -1)
+			print('RESULT: threeway key: {}'.format(threewaykey))
 			if (threewaykey!=-1):
 				#if the threeway session key has been successfully decrypted
-				print('decrypting sent token nonce pair...')
+				print('STATUS: decrypting (token,nonce) pair...')
 				#decrypting the (token,nonce) with the threeway session key
 				tokenpair = self.security.decrypt(Etoken,'AES',threewaykey,AES.MODE_CBC)
-				print('generating another 3way session key...')
+				print('RESULT: tokennoncepair is : {}'.format(tokenpair))
+				print('STATUS: generating another 3way session key...')
 				#generating another random key for encrypting the token nonce pair
 				pool = map(chr,range(97,123))+map(chr,range(65,91))+map(chr,range(48,57))
 				random.shuffle(pool)
 				Clientthreewaykey = ''.join(pool[0:32])
-				print('encrypting token pair...')
+				print('RESULT: Clientthreewaykey {}'.format(Clientthreewaykey))
+				print('STATUS: encrypting (token,nonce) pair...')
 				#encrypting (token,nonce) pair with random key -- AES
 				Etokenpair = self.security.encrypt(tokenpair,'AES',Clientthreewaykey,AES.MODE_CBC)
 				Etokenpair = base64.b64encode(Etokenpair)
-				print('encrypting client gen 3way session key...')
+				print('RESULT: Encrypted token pair: {}'.format(Etokenpair))
+				print('STATUS: encrypting client gen 3way session key...')
 				#encrypting client generated threeway session key with server public keys
 				pubkey = open(self.serverpublickeylocation).read()
 				prsakey = RSA.importKey(pubkey)
 				prsakey = PKCS1_v1_5.new(prsakey)
 				EClientthreewaykey = base64.b64encode(prsakey.encrypt(Clientthreewaykey))
+				print('RESULT: Encryptedthreewaykey {}'.format(EClientthreewaykey))
+				print('STATUS: Encrypted client gen threeway key: {}'.format(EClientthreewaykey))
 				#sending  E_s(k)||E_aes(token||nonce) to server
 				cresponse = '{0} {1}'.format(EClientthreewaykey,Etokenpair)
-				print('sending server response: {}'.format(cresponse))
+				print('STATUS: sending {} to the server'.format(cresponse))
 				self.send(cresponse)
-				print('done sending...')
+				print('STATUS: done sending...')
 			else:
 				#could not decrypt server question thus cannot complete 3way handshake
 				raise Exception('Could not decode server response. 3 way handshake failed.')

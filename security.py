@@ -8,6 +8,7 @@ from Crypto.Cipher import AES
 from Crypto.Cipher import Blowfish
 from Crypto import Random
 import re
+import base64
 class security():
 	#
 	# Method for computing
@@ -43,6 +44,7 @@ class security():
 	#
 	def encrypt(self,data, EncryptAlgo, key, mode):
 		data = self.pad(data)
+		#print('key {0}, hashed key is {1}'.format(key,base64.b64encode(self.hash(key,'md5'))))	
 		key = self.hash(key,'md5')
 		iv = Random.new().read(AES.block_size)
 		if (EncryptAlgo=='AES'):
@@ -59,8 +61,9 @@ class security():
 	#
 	# Method for decrypting 
 	#
-	def decrypt(self,data, DecryptAlgo, key, mode):
-		key = self.hash(key,'md5')
+	def decrypt(self,data, DecryptAlgo, key, mode):		
+		#print('key {0}, hashed key is {1}'.format(key,base64.b64encode(self.hash(key,'md5'))))	
+		key = self.hash(key,'md5')		
 		iv = Random.new().read(AES.block_size)
 		if (DecryptAlgo=='AES'):
 			aesDecrypter = AES.new(key,mode,iv)
