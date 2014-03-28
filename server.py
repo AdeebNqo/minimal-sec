@@ -38,6 +38,7 @@ class sockethandler(threading.Thread):
 	connection_up = True
 	authenticated = False
 	security = None #Object that has utility security methods
+	clientname = None
 	def __init__(self,conn, addr):
 		self.security = security()
 		clients = keyconfig.getConfigItem(Key.OtherParties) #retrieving all clients authorized to access server
@@ -60,6 +61,7 @@ class sockethandler(threading.Thread):
 			if (data.startswith('CONNECT')):
 				print('client attempting to connect...')
 				clientname = data.split()[1]
+				self.clientname = clientname
 				if (clientname in registeredclients.keys()):
 					#print('STATUS: client is registered.')
 					#print('STATUS: generating nonce and token...')
@@ -147,17 +149,37 @@ class sockethandler(threading.Thread):
 				print('reading in the recieved file..')
 				#accepting incoming file
 				data = self.connection.recv(8000).strip()
-				fileitems = data.split()
-				print('file items are : '.format(fileitems))
+				fileitems = data.split('\t')
+				print('file items are : {}'.format(fileitems))
+				print('-------------------------------------')
 				ID = fileitems[0]
+				Edetails = fileitems[1]
+				signedHash = '\t'.join(fileitems[2:])
+				print('ID: {}'.format(ID))
+				print('Edatails: {}'.format(Edetails))
+				print('signedHash: {}'.format(signedHash))
 				#decrypting file details
-				#self.security.decrypt()
-				f = open('{0}/{1}.nqo'.format(dbdatadir,ID),'w+')
-				f.write(data)
-				f.close()
-				print('received data {}'.format(data))
-				self.send('FILERECIEVED')
-				print('file saved.')
+				details = self.security.decrypt(Edetails,'AES','thisisakey',AES.MODE_CBC)
+				#extracting hash from signed hash by decrypting with public key
+				pubkey = open(registeredclients[clientname],'rb').read()
+				rsakey = RSA.importKey(pubkey)
+				rsakey = PKCS1_v1_5.new(rsakey)
+				Hash = rsakey.decrypt(signedHash,-1)
+				#check if decryption is succesful
+				if (Hash!=-1):
+					HashX = self.security.hash('{0} {1}'.format(ID,details),'sha512')
+					if (Hash==HashX):
+						f = open('{0}/{1}.nqo'.format(dbdatadir,ID),'w+')
+						f.write(data)
+						f.close()
+						self.send('FILERECIEVED')
+						print('file saved.')
+					else:
+						self.send('FILECHANGED')
+						print('file changed')
+				else:
+					self.send('FILECHANGED')
+					print('file changed')
 			else:
 				#connection lost
 				print('{} has disconnected from server.'.format(self.address))

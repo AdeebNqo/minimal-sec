@@ -124,22 +124,20 @@ class client(object):
 		print('id is {}'.format(ID))
 		DETAILS = line[dashpos+1:]
 		iv = Random.new().read(AES.block_size);
+		#Compiuting hash of id and details
+		hashX = self.security.hash('{0} {1}'.format(ID,DETAILS),'sha512')
 		#Encrypting hash of id and details with owners private key
-		hashX = self.security.hash('{0}{1}'.format(ID,DETAILS),'sha512')
 		privkey = open(self.privatekeylocation,'rb').read()
 		rsakey = RSA.importKey(privkey)
 		rsakey = PKCS1_v1_5.new(rsakey)
-		signedHash = rsakey.encrypt(hashX, -1)
-		if (signedHash!=-1):
-			self.send('{0} {1} {2}'.format(ID ,base64.b64encode(self.security.encrypt(DETAILS,'AES', 'thisisakey', AES.MODE_CBC, iv)),signedHash))
-			response = self.sockt.recv(1024)
-			if (response=='FILERECIEVED'):
-				print('file stored safely...')
-			elif (response=='FILECHANGED'):
-				print('File has been corrupted. Server received altered file.')
-			print('server says {}'.format(response))
-		else:
-			print('could not send file. Signing failed.')
+		signedHash = rsakey.encrypt(hashX)
+		self.send('{0}\t{1}\t{2}'.format(ID ,base64.b64encode(self.security.encrypt(DETAILS,'AES', 'thisisakey', AES.MODE_CBC)),signedHash))
+		response = self.sockt.recv(1024)
+		if (response=='FILERECIEVED'):
+			print('file stored safely...')
+		elif (response=='FILECHANGED'):
+			print('File has been corrupted. Server received altered file.')
+		print('server says {}'.format(response))
 	
 	def disconnect(self):
 		self.sockt.close()
