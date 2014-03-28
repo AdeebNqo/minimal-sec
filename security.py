@@ -6,6 +6,7 @@
 import hashlib
 from Crypto.Cipher import AES
 from Crypto.Cipher import Blowfish
+from Crypto import Random
 import re
 class security():
 	#
@@ -42,7 +43,7 @@ class security():
 	#
 	def encrypt(self,data, EncryptAlgo, key, mode):
 		data = self.pad(data)
-		key = self.hash(key,'sha512')
+		key = self.hash(key,'md5')
 		iv = Random.new().read(AES.block_size)
 		if (EncryptAlgo=='AES'):
 			aesEncrypter = AES.new(key,mode,iv)
@@ -59,7 +60,7 @@ class security():
 	# Method for decrypting 
 	#
 	def decrypt(self,data, DecryptAlgo, key, mode):
-		key = self.hash(key,'sha512')
+		key = self.hash(key,'md5')
 		iv = Random.new().read(AES.block_size)
 		if (DecryptAlgo=='AES'):
 			aesDecrypter = AES.new(key,mode,iv)
@@ -77,11 +78,10 @@ class security():
 	#
 	def pad(self,data):
 		rem = length = AES.block_size - (len(data) % AES.block_size)
-		for i in range(rem):
-			data=data+str(rem)
-		return data
+		pad = chr(rem) * rem
+		return data+pad
 	#
 	# Method for unpadding text after decryption
 	#
 	def unpad(self,data):
-		return data
+		return data[0:-ord(data[-1])]

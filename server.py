@@ -62,19 +62,27 @@ class sockethandler(threading.Thread):
 				clientname = data.split()[1]
 				if (clientname in registeredclients.keys()):
 					print('client is registered.')
+					print('generating nonce and token...')
 					token = passphrase.getpassphrase().encode('ascii', 'ignore')
-					print('generated passphrase is {}'.format(token))
+					print('done generating token.')
 					#generating nonce and sending it to client alongside token
 					nonce = random.randint(0,9000000)
+					print('done generating nonce.')
 					token = '{0} {1}'.format(token,nonce)
 					
+					print('generating 3way session key')
 					#Generating key to encrypt the data
-					threewaykey = ubprocess.check_output('cat /dev/urandom | tr -dc \'a-zA-Z0-9-!@#$%^&*()_+~\' | fold -w 10 | head -n 1',shell=True)
+					pool = map(chr,range(97,123))+map(chr,range(65,91))+map(chr,range(48,57))
+					random.shuffle(pool)
+					threewaykey = ''.join(pool[0:32])
+					print('the session key is {}'.format(threewaykey))
+					print('encrypting server threeway session key...')
 					#encrypting the threeway session key
 					pubkey = open(registeredclients[clientname],'r').read()
 					rsakey = RSA.importKey(pubkey)
 					rsakey = PKCS1_v1_5.new(rsakey)
 					Ethreewaykey = base64.b64encode(rsakey.encrypt(threewaykey)) #Encrypted three way key
+					print('encrypting data with session key...')
 					#encrypting the actual (token, nonce) combination
 					authtoken = '{1} {0}'.format(base64.b64encode(self.security.encrypt(token,'AES',threewaykey,AES.MODE_CBC)), Ethreewaykey)
 					print('encrypted token is {}'.format(authtoken))
@@ -85,9 +93,9 @@ class sockethandler(threading.Thread):
 					cresponse = self.connection.recv(1024).strip()
 					print('client has responded. Now decoding response..')
 					#breaking up response to E_s(k) and E_aes(token||nonce), that is, to encrypted key and encrypted (token,nonce) pair
-					vals = creponse.split()
+					vals = cresponse.split()
 					EClientthreewaykey = base64.b64decode(vals[0])
-					Etokennoncepair = base64.b4decode(vals[1])
+					Etokennoncepair = base64.b64decode(vals[1])
 					
 					#decrypint client created threeway session key
 					spriv = keyconfig.getConfigItem(Key.OwnPrivate)
@@ -95,12 +103,13 @@ class sockethandler(threading.Thread):
 					prsakey = RSA.importKey(privkey)
 					prsakey = PKCS1_v1_5.new(prsakey)
 					Clientthreewaykey = prsakey.decrypt(EClientthreewaykey,-1)
+					
 					#decrypting (token,nonce) pair using the client created threeway session key
 					tokennoncepair = self.security.decrypt(Etokennoncepair,'AES',Clientthreewaykey,AES.MODE_CBC)
 					tokennoncelist = tokennoncepair.split()
 					tokenX = tokennoncelist[0]
 					nonceX = tokennoncelist[1]
-					if (rtoken==-1):
+					if (Clientthreewaykey==-1):
 						self.connection.close()
 						raise Exception('Decryption of client token failed.')
 					else:

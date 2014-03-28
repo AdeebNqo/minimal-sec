@@ -9,6 +9,7 @@
 #   Now they have two problems."
 #   -Jamie Zawinski
 #
+import random
 import socket
 import pickle
 import select
@@ -74,21 +75,27 @@ class client(object):
 			vals = response.split()
 			Ethreewaykey = base64.b64decode(vals[0])
 			Etoken = base64.b64decode(vals[1])
+			print('decrypting server gen 3way session key...')
 			#Decrypting the threeway session key so that i can extract the token and nonce
 			privkey = open(self.privatekeylocation,'rb').read()
 			rsakey = RSA.importKey(privkey)
 			rsakey = PKCS1_v1_5.new(rsakey)
-			token = rsakey.decrypt(Ethreewaytoken, -1)
-			if (token!=-1):
+			threewaykey = rsakey.decrypt(Ethreewaykey, -1)
+			if (threewaykey!=-1):
 				#if the threeway session key has been successfully decrypted
-				
+				print('decrypting sent token nonce pair...')
 				#decrypting the (token,nonce) with the threeway session key
-				tokenpair = self.security.decrypt(Etoken,'AES',AES.MODE_CBC)
+				tokenpair = self.security.decrypt(Etoken,'AES',threewaykey,AES.MODE_CBC)
+				print('generating another 3way session key...')
 				#generating another random key for encrypting the token nonce pair
-				Clientthreewaykey = subprocess.check_output('cat /dev/urandom | tr -dc \'a-zA-Z0-9-!@#$%^&*()_+~\' | fold -w 10 | head -n 1',shell=True)
+				pool = map(chr,range(97,123))+map(chr,range(65,91))+map(chr,range(48,57))
+				random.shuffle(pool)
+				Clientthreewaykey = ''.join(pool[0:32])
+				print('encrypting token pair...')
 				#encrypting (token,nonce) pair with random key -- AES
 				Etokenpair = self.security.encrypt(tokenpair,'AES',Clientthreewaykey,AES.MODE_CBC)
 				Etokenpair = base64.b64encode(Etokenpair)
+				print('encrypting client gen 3way session key...')
 				#encrypting client generated threeway session key with server public keys
 				pubkey = open(self.serverpublickeylocation).read()
 				prsakey = RSA.importKey(pubkey)
