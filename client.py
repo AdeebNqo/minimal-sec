@@ -216,7 +216,7 @@ class client(object):
 	def interface(self):
 		inputv = ''			
 		while (inputv!='q'):
-			inputv = input('--\tMenu\t--\n1. Send File\n2. Send email.\n')
+			inputv = input('--\tMenu\t--\n1. Send File\n2. Send email.\n3.Get file details.\n4.Exit\n')
 			if (inputv==1):
 				inputv = input("Location of file:")
 				File = open(inputv,'r')
@@ -224,7 +224,12 @@ class client(object):
 				self.sendFile(File)
 			elif(inputv==2):
 				self.sendEmail()
-				
+			elif (inputv==3):
+				print('')
+			elif (inputv==4):
+				self.disconnect()
+				print('shutting down...')
+				sys.exit(0)
 		
 if __name__=='__main__':
 	client = client('localhost', 7778)

@@ -26,6 +26,8 @@ Practical for securing communications between server and client.
 - [X] Verify correctness of padding scheme in security
 - [X] support long body in email
 - [ ] initialisation vector in security.encrypt() only supports AES block sizes
+- [ ] Client request file details from server
+- [ ] Exchange master key
 
 ##Deprecated
 - UDP support
