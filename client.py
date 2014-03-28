@@ -127,14 +127,20 @@ class client(object):
 		print('id is {}'.format(ID))
 		DETAILS = line[dashpos+1:]
 		iv = Random.new().read(AES.block_size);
-		#Compiuting hash of id and details
+		#Computing hash of id and details
 		hashX = SHA.new('{0} {1}'.format(ID,DETAILS))
 		#Signing hash of id and details with owners private key
 		privkey = open(self.privatekeylocation,'rb').read()
 		rsakey = RSA.importKey(privkey)
 		signer = pkc.new(rsakey)
-		signedHash = signer.sign(hashX)
-		self.send('{0}\t{1}\t{2}'.format(ID ,base64.b64encode(self.security.encrypt(DETAILS,'AES', 'thisisalocalmasterkey', AES.MODE_CBC)),signedHash))
+		signedHash = base64.b64encode(signer.sign(hashX))
+		print('CLIENT: ID {}'.format(ID))
+		edetails = base64.b64encode(self.security.encrypt(DETAILS,'AES', 'thisisalocalmasterkey', AES.MODE_CBC))
+		print('CLIENT: EDETAILS {}'.format(edetails))
+		print('CLIENT: SIGNEDHASH {}'.format(signedHash))
+		#sending data to server
+		self.send('{0} .\t. {1} .\t. {2}'.format(ID ,edetails, signedHash))
+		#waiting for file upload response
 		response = self.sockt.recv(1024)
 		if (response=='FILERECIEVED'):
 			print('file stored safely...')
@@ -219,6 +225,8 @@ class client(object):
 		print('waiting for edetails...')
 		#wait for encrypted details of file
 		edetails = self.sockt.recv(3000)
+		details = self.security.decrypt(edetails,'AES','thisisalocalmasterkey',AES.MODE_CBC)
+		return details
 	def interface(self):
 		inputv = ''			
 		while (inputv!='q'):

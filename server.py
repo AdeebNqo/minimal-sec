@@ -162,24 +162,24 @@ class sockethandler(threading.Thread):
 			elif (data=='FILESEND'):
 				print('reading in the recieved file..')
 				#accepting incoming file
-				data = self.connection.recv(8000).strip()
-				fileitems = data.split('\t')
-				print('file items are : {}'.format(fileitems))
-				print('-------------------------------------')
+				data = self.connection.recv(9000).strip()
+				fileitems = data.split(' .\t. ')
+				print('SERVER: fileitems {}'.format(fileitems))
 				ID = fileitems[0]
 				Edetails = fileitems[1]
 				signedHash = '\t'.join(fileitems[2:])
 				print('ID: {}'.format(ID))
-				print('Edatails: {}'.format(Edetails))
-				print('signedHash: {}'.format(signedHash))
+				print('EDETAILS: {}'.format(Edetails))
+				print('SIGNEDHASH: {}'.format(signedHash))
 				#decrypting file details
-				details = self.security.decrypt(Edetails,'AES','thisisakey',AES.MODE_CBC)
+				details = self.security.decrypt(base64.b64decode(Edetails),'AES','thisisalocalmasterkey',AES.MODE_CBC)
 				#extracting hash from signed hash by decrypting with public key
 				pubkey = open(registeredclients[clientname],'rb').read()
 				rsakey = RSA.importKey(pubkey)
 				verifier = pkc.new(rsakey)
 				#check if decryption is succesful
-				Hash = True if verifier.verify(SHA.new('{0} {1}'.format(ID,details)),signedHash) else False
+				Hash = True if verifier.verify(SHA.new('{0} {1}'.format(ID,details)),base64.b64decode(signedHash)) else False
+				print('HashEQUAL? {}'.format(Hash))				
 				if (Hash):
 					f = open('{0}/{1}.nqo'.format(dbdatadir,ID),'w+')
 					f.write(data)
