@@ -157,12 +157,15 @@ class sockethandler(threading.Thread):
 				print('waiting for file id')
 				self.send('ID')
 				ID = self.connection.recv(1024)
-				print('opening file...')
-				f = open('{0}/{1}.nqo'.format(self.clientdbfolder, ID))
-				print('processing...')
-				filedata = f.readline()
-				fileitems = filedata.split(' .\t. ')
-				self.send(base64.b64encode(fileitems[1]))
+				try:
+					print('opening file...')
+					f = open('{0}/{1}.nqo'.format(self.clientdbfolder, ID))
+					print('processing...')
+					filedata = f.readline()
+					fileitems = filedata.split(' .\t. ')
+					self.send(base64.b64encode(fileitems[1]))
+				except Exception:
+					self.send('EXCEPTION')
 			elif (data=='FILESEND'):
 				print('reading in the recieved file..')
 				#accepting incoming file

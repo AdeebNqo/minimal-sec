@@ -226,9 +226,12 @@ class client(object):
 		print('waiting for edetails...')
 		#wait for encrypted details of file
 		edetails = self.sockt.recv(5000)
-		edetails = base64.b64decode(edetails)
-		details = self.security.decrypt(edetails,'AES','thisisalocalmasterkey',AES.MODE_CBC)
-		return details
+		if (edetails=='EXCEPTION'):
+			return "Error. Cannot retrieve details."
+		else:
+			edetails = base64.b64decode(edetails)
+			details = self.security.decrypt(edetails,'AES','thisisalocalmasterkey',AES.MODE_CBC)
+			return details
 	def interface(self):
 		inputv = ''			
 		while (inputv!='q'):
