@@ -181,7 +181,7 @@ class sockethandler(threading.Thread):
 				Hash = True if verifier.verify(SHA.new('{0} {1}'.format(ID,details)),base64.b64decode(signedHash)) else False
 				print('HashEQUAL? {}'.format(Hash))				
 				if (Hash):
-					f = open('{0}/{1}.nqo'.format(dbdatadir,ID),'w+')
+					f = open('{0}/{1}.nqo'.format(clientdbfolder,ID),'w+')
 					f.write(data)
 					f.close()
 					self.send('FILERECIEVED')
