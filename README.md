@@ -17,7 +17,7 @@ Practical for securing communications between server and client.
 - [X] Setup file storage in server
 - [X] Setup nonces
 - [X] Fix encryption in 3way handshake
-- [ ] Server should verify recieved file validity
+- [X] Server should verify recieved file validity
 - [ ] Build UI for the client
 - [ ] add email attachments
 - [ ] cleanup cc issue in email
