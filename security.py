@@ -38,11 +38,12 @@ class security():
 			raise Exception('Hashing algorithm '+hashAlgo+' not recognized.')
 	#
 	#Method for encrypting data
-	#using a specified public key
+	#-symetric encryption-
 	#
-	def encrypt(self,data, EncryptAlgo, key, mode,iv):
+	def encrypt(self,data, EncryptAlgo, key, mode):
 		data = self.pad(data)
-		key = self.pad(key)
+		key = self.hash(key,'sha512')
+		iv = Random.new().read(AES.block_size)
 		if (EncryptAlgo=='AES'):
 			aesEncrypter = AES.new(key,mode,iv)
 			return aesEncrypter.encrypt(data)
@@ -57,23 +58,30 @@ class security():
 	#
 	# Method for decrypting 
 	#
-	def decrypt(self,data, DecryptAlgo, key, mode, padding):
+	def decrypt(self,data, DecryptAlgo, key, mode):
+		key = self.hash(key,'sha512')
+		iv = Random.new().read(AES.block_size)
 		if (DecryptAlgo=='AES'):
-			aesDecrypter = AES.new(key)
-			return aesDecrypter.decrypt(data)
+			aesDecrypter = AES.new(key,mode,iv)
+			return self.unpad(aesDecrypter.decrypt(data))
 		elif (DecryptAlgo=='Blowfish'):
 			blowfishDecrypter = Blowfish.new(key)
-			return blowfishDecrypter.decrypt(data)
+			return self.unpad(blowfishDecrypter.decrypt(data))
 		elif (DecryptAlgo=='DES'):
 			desDecrypter = DES.new(key)
-			return desDecrypter.decrypter(data)
+			return self.unpad(desDecrypter.decrypter(data))
 		else:
 			raise Exception('Could not decrypt data.'+DecryptAlgo+' is not supported')
 	#
-	# Method for padding the plaintext and key
+	# Method for padding the text for encryption
 	#
 	def pad(self,data):
 		rem = length = 16 - (len(data) % 16)
 		for i in range(rem):
 			data=data+str(rem)
+		return data
+	#
+	# Method for unpadding text after decryption
+	#
+	def unpad(self,data):
 		return data

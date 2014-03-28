@@ -14,6 +14,7 @@ import socket
 import random
 import threading
 from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES
 from Crypto.Cipher import PKCS1_v1_5
 import sys
 import base64
@@ -21,6 +22,7 @@ from keyconfig import KeyConfig
 from keyconfig import Key
 import passphrase
 from security import security
+import subprocess
 
 registeredclients = {}
 connectedclients = {}
@@ -65,33 +67,45 @@ class sockethandler(threading.Thread):
 					#generating nonce and sending it to client alongside token
 					nonce = random.randint(0,9000000)
 					token = '{0} {1}'.format(token,nonce)
-					#encrypting
+					
+					#Generating key to encrypt the data
+					threewaykey = ubprocess.check_output('cat /dev/urandom | tr -dc \'a-zA-Z0-9-!@#$%^&*()_+~\' | fold -w 10 | head -n 1',shell=True)
+					#encrypting the threeway session key
 					pubkey = open(registeredclients[clientname],'r').read()
 					rsakey = RSA.importKey(pubkey)
 					rsakey = PKCS1_v1_5.new(rsakey)
-					authtoken = base64.b64encode(rsakey.encrypt(token))
+					Ethreewaykey = base64.b64encode(rsakey.encrypt(threewaykey)) #Encrypted three way key
+					#encrypting the actual (token, nonce) combination
+					authtoken = '{1} {0}'.format(base64.b64encode(self.security.encrypt(token,'AES',threewaykey,AES.MODE_CBC)), Ethreewaykey)
 					print('encrypted token is {}'.format(authtoken))
 					self.send(authtoken)
 					print('sent authtoken')
 					print('waiting for client response...')
-					#Retrieve token again from client
-					rtoken = self.connection.recv(1024).strip()
+					#Retrieve response from client
+					cresponse = self.connection.recv(1024).strip()
 					print('client has responded. Now decoding response..')
-					rtoken = base64.b64decode(rtoken)
+					#breaking up response to E_s(k) and E_aes(token||nonce), that is, to encrypted key and encrypted (token,nonce) pair
+					vals = creponse.split()
+					EClientthreewaykey = base64.b64decode(vals[0])
+					Etokennoncepair = base64.b4decode(vals[1])
+					
+					#decrypint client created threeway session key
 					spriv = keyconfig.getConfigItem(Key.OwnPrivate)
-					print('recieved rtoken: {} from client'.format(rtoken))
-					#decrypting authentication token
 					privkey = open(spriv,'r').read()
 					prsakey = RSA.importKey(privkey)
 					prsakey = PKCS1_v1_5.new(prsakey)
-					rtoken = prsakey.decrypt(rtoken,-1)
-					print('client responded with {}'.format(rtoken))
+					Clientthreewaykey = prsakey.decrypt(EClientthreewaykey,-1)
+					#decrypting (token,nonce) pair using the client created threeway session key
+					tokennoncepair = self.security.decrypt(Etokennoncepair,'AES',Clientthreewaykey,AES.MODE_CBC)
+					tokennoncelist = tokennoncepair.split()
+					tokenX = tokennoncelist[0]
+					nonceX = tokennoncelist[1]
 					if (rtoken==-1):
 						self.connection.close()
 						raise Exception('Decryption of client token failed.')
 					else:
-						#computing hash of cached nonce and random token to compare with client response
-						self.authenticated = (self.security.hash('{1} {0}'.format(token,nonce),'sha512')==rtoken)
+						#comparing cached nonce and token with client's response
+						self.authenticated = (token==tokenX and nonce==nonceX)
 						if (self.authenticated):
 							print('entity authentication successful.')
 						else:

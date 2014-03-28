@@ -25,6 +25,7 @@ from keyconfig import KeyConfig
 import smtplib
 from email.mime.text import MIMEText
 from security import security
+import subprocess
 
 blocksize = 16 #Block size for the encryption
 
@@ -69,27 +70,34 @@ class client(object):
 		if (response=='101 CONNECT FAILED'):
 			raise Exception('Connection failed 101. Client not recognized')
 		else:
-			#decrypting token
-			authtoken = base64.b64decode(response)
-			print('server responded with token: {}'.format(authtoken))
+			#Here lies dragons --- taking response from server and desembling it
+			vals = response.split()
+			Ethreewaykey = base64.b64decode(vals[0])
+			Etoken = base64.b64decode(vals[1])
+			#Decrypting the threeway session key so that i can extract the token and nonce
 			privkey = open(self.privatekeylocation,'rb').read()
 			rsakey = RSA.importKey(privkey)
 			rsakey = PKCS1_v1_5.new(rsakey)
-			token = rsakey.decrypt(authtoken, -1)
+			token = rsakey.decrypt(Ethreewaytoken, -1)
 			if (token!=-1):
-				#if the token has been successfully decrypted
-				print('server response successfully decrypted.')
-				vals = token.split()
-				nonce = vals[1]
-				token = vals[0]
-				rtoken = self.security.hash('{0} {1}'.format(nonce,token),'sha512')
-				print('sending rtoken:{} to the server'.format(rtoken))
-				#encrypting with server public keys
+				#if the threeway session key has been successfully decrypted
+				
+				#decrypting the (token,nonce) with the threeway session key
+				tokenpair = self.security.decrypt(Etoken,'AES',AES.MODE_CBC)
+				#generating another random key for encrypting the token nonce pair
+				Clientthreewaykey = subprocess.check_output('cat /dev/urandom | tr -dc \'a-zA-Z0-9-!@#$%^&*()_+~\' | fold -w 10 | head -n 1',shell=True)
+				#encrypting (token,nonce) pair with random key -- AES
+				Etokenpair = self.security.encrypt(tokenpair,'AES',Clientthreewaykey,AES.MODE_CBC)
+				Etokenpair = base64.b64encode(Etokenpair)
+				#encrypting client generated threeway session key with server public keys
 				pubkey = open(self.serverpublickeylocation).read()
 				prsakey = RSA.importKey(pubkey)
 				prsakey = PKCS1_v1_5.new(prsakey)
-				token = prsakey.encrypt(rtoken)
-				self.send(base64.b64encode(rtoken))
+				EClientthreewaykey = base64.b64encode(prsakey.encrypt(Clientthreewaykey))
+				#sending  E_s(k)||E_aes(token||nonce) to server
+				cresponse = '{0} {1}'.format(EClientthreewaykey,Etokenpair)
+				print('sending server response: {}'.format(cresponse))
+				self.send(cresponse)
 				print('done sending...')
 			else:
 				#could not decrypt server question thus cannot complete 3way handshake
@@ -101,7 +109,7 @@ class client(object):
 		print('id is {}'.format(ID))
 		DETAILS = line[dashpos+1:]
 		iv = Random.new().read(AES.block_size);
-		self.send('{0} {1} {2}'.format(ID ,base64.b64encode(self.security.encrypt(DETAILS,'AES', 'thisisakey', AES.MODE_CBC, iv)),self.security.hash('{0}{1}'.format(ID,DETAILS),'sha224')))
+		self.send('{0} {1} {2}'.format(ID ,base64.b64encode(self.security.encrypt(DETAILS,'AES', 'thisisakey', AES.MODE_CBC, iv)),self.security.hash('{0}{1}'.format(ID,DETAILS),'sha512')))
 		response = self.sockt.recv(1024)
 		if (response=='FILERECIEVED'):
 			print('file stored safely...')

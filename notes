@@ -95,3 +95,5 @@ http://stackoverflow.com/questions/1546367/python-how-to-send-mail-with-to-cc-an
 Email login details:
 email: nishutch001@gmail.com
 password: nishutch2014
+
+System only is OS dependent -- Needs Unix based system. Tested on Ubuntu 12.10

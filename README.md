@@ -23,6 +23,8 @@ Practical for securing communications between server and client.
 - [X] keyexchange between client and server for encrypting files
 - [ ] Verify correctness of padding scheme in security
 - [ ] support long body in email
+- [ ] initialisation vector in security.encrypt() only supports AES block sizes
+
 ##Deprecated
 - UDP support
 - Server cannot decrypt files
