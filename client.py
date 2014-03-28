@@ -187,15 +187,15 @@ class client(object):
 		p7 = smime.sign(emailbuffer)
 	
 		#step 2: encrypting email
-		#x509 = X509.load_cert(self.serveremailcertlocation)
-		#stack = X509.X509_Stack()
-		#stack.push(x509)
-		#smime.set_x509_stack(stack)
+		x509 = X509.load_cert(self.serveremailcertlocation)
+		tack = X509.X509_Stack()
+		stack.push(x509)
+		smime.set_x509_stack(stack)
 
-		#smime.set_cipher(SMIME.Cipher('des_ede3_cbc'))
-		#tmp = BIO.MemoryBuffer()
-		#smime.write(tmp, p7, emailbuffer)
-		#p7 = smime.encrypt(tmp)
+		smime.set_cipher(SMIME.Cipher('des_ede3_cbc'))
+		tmp = BIO.MemoryBuffer()
+		smime.write(tmp, p7, emailbuffer)
+		p7 = smime.encrypt(tmp)
 		
 		out = BIO.MemoryBuffer()
 		out.write('From: {}\n'.format(From))
