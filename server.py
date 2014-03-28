@@ -63,7 +63,7 @@ class sockethandler(threading.Thread):
 				if (clientname in registeredclients.keys()):
 					print('STATUS: client is registered.')
 					print('STATUS: generating nonce and token...')
-					token = passphrase.getpassphrase().encode('ascii', 'ignore')
+					token = passphrase.getpassphrase().encode('ascii', 'ignore').replace('\n', ' ').replace('\r', '')
 					print('STATUS: done generating token.')
 					#generating nonce and sending it to client alongside token
 					nonce = random.randint(0,9000000)
@@ -125,8 +125,7 @@ class sockethandler(threading.Thread):
 					tokennoncepair = self.security.decrypt(Etokennoncepair,'AES',Clientthreewaykey,AES.MODE_CBC)
 					tokennoncelist = tokennoncepair.split()
 					print('RESULT: (token,nonce) list: {}'.format(tokennoncelist))
-					tokenX = ''.join(tokennoncelist[1:])
-					nonceX = tokennoncelist[0]
+					tokenX = ' '.join(tokennoncelist[:])
 					if (Clientthreewaykey==-1):
 						self.connection.close()
 						raise Exception('Decryption of client token failed.')
@@ -134,8 +133,7 @@ class sockethandler(threading.Thread):
 						#comparing cached nonce and token with client's response
 						print('X is last one')
 						print('STATUS: comparing {0} and {1}'.format(token,tokenX))
-						print('STATUSS: comparing {0} and {1}'.format(nonce,nonceX))
-						self.authenticated = (token==tokenX and nonce==nonceX)
+						self.authenticated = token==tokenX
 						if (self.authenticated):
 							print('entity authentication successful.')
 						else:

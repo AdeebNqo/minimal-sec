@@ -49,13 +49,13 @@ class security():
 		iv = Random.new().read(AES.block_size)
 		if (EncryptAlgo=='AES'):
 			aesEncrypter = AES.new(key,mode,iv)
-			return aesEncrypter.encrypt(data)
+			return iv+aesEncrypter.encrypt(data)
 		elif (EncryptAlgo=='Blowfish'):
 			blowfishEncrypter = Blowfish.new(key)
-			return blowfishEncrypter.encrypt(data)
+			return iv+blowfishEncrypter.encrypt(data)
 		elif (EncryptAlgo=='DES'):
 			desEncrypter = DES.new(key)
-			return desEncrypter.encrypt(data)
+			return iv+desEncrypter.encrypt(data)
 		else:
 			raise Exception('Could not encrypt data.'+DecryptAlgo+' is not supported')
 	#
@@ -64,7 +64,8 @@ class security():
 	def decrypt(self,data, DecryptAlgo, key, mode):		
 		#print('key {0}, hashed key is {1}'.format(key,base64.b64encode(self.hash(key,'md5'))))	
 		key = self.hash(key,'md5')		
-		iv = Random.new().read(AES.block_size)
+		iv = data[0:AES.block_size]
+		data = data[AES.block_size:]
 		if (DecryptAlgo=='AES'):
 			aesDecrypter = AES.new(key,mode,iv)
 			return self.unpad(aesDecrypter.decrypt(data))
