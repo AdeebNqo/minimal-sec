@@ -220,13 +220,16 @@ class client(object):
 		server.quit()
 	def retrieveFile(self,ID):
 		self.send('FILERETRIEVE')
+		IDrequest  = self.sockt.recv(1024)
 		print('sending id..')
 		self.send(ID)
 		print('waiting for edetails...')
 		#wait for encrypted details of file
-		edetails = base64.b64decode(self.sockt.recv(3000))
-		details = self.security.decrypt(edetails,'AES','thisisalocalmasterkey',AES.MODE_CBC)
-		return details
+		edetails = self.sockt.recv(5000)
+		edetails = base64.b64decode(edetails)
+		print('server returned {}'.format(edetails))
+		#details = self.security.decrypt(edetails,'AES','thisisalocalmasterkey',AES.MODE_CBC)
+		return edetails
 	def interface(self):
 		inputv = ''			
 		while (inputv!='q'):

@@ -155,11 +155,15 @@ class sockethandler(threading.Thread):
 					self.send('101 CONNECT FAILED')
 			elif (data=='FILERETRIEVE'):
 				print('waiting for file id')
+				self.send('ID')
 				ID = self.connection.recv(1024)
+				print('opening file...')
 				f = open('{0}/{1}.nqo'.format(self.clientdbfolder, ID))
-				filedata = '\n'.join(f.readlines())
+				print('processing...')
+				filedata = f.readline()
 				fileitems = filedata.split(' .\t. ')
-				self.send(filedata[1])
+				print('SERVER: fileitems {}'.format(fileitems))
+				self.send(base64.b64encode(fileitems[1]))
 			elif (data=='FILESEND'):
 				print('reading in the recieved file..')
 				#accepting incoming file
@@ -168,21 +172,20 @@ class sockethandler(threading.Thread):
 				print('SERVER: fileitems {}'.format(fileitems))
 				ID = fileitems[0]
 				Edetails = fileitems[1]
+				Edetails = base64.b64decode(Edetails)
 				signedHash = '\t'.join(fileitems[2:])
-				print('ID: {}'.format(ID))
-				print('EDETAILS: {}'.format(Edetails))
-				print('SIGNEDHASH: {}'.format(signedHash))
+				signedHash = base64.b64decode(signedHash)
 				#decrypting file details
-				details = self.security.decrypt(base64.b64decode(Edetails),'AES','thisisalocalmasterkey',AES.MODE_CBC)
+				details = self.security.decrypt(Edetails,'AES','thisisalocalmasterkey',AES.MODE_CBC)
 				#extracting hash from signed hash by decrypting with public key
 				pubkey = open(registeredclients[clientname],'rb').read()
 				rsakey = RSA.importKey(pubkey)
 				verifier = pkc.new(rsakey)
 				#check if decryption is succesful
-				Hash = True if verifier.verify(SHA.new('{0} {1}'.format(ID,details)),base64.b64decode(signedHash)) else False
-				print('HashEQUAL? {}'.format(Hash))				
+				Hash = True if verifier.verify(SHA.new('{0} {1}'.format(ID,details)),signedHash) else False			
 				if (Hash):
 					f = open('{0}/{1}.nqo'.format(self.clientdbfolder,ID),'w+')
+					data = 	'{0} .\t. {1} .\t. {2}'.format(ID, Edetails, signedHash)			
 					f.write(data)
 					f.close()
 					self.send('FILERECIEVED')
