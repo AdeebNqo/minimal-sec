@@ -162,7 +162,6 @@ class sockethandler(threading.Thread):
 				print('processing...')
 				filedata = f.readline()
 				fileitems = filedata.split(' .\t. ')
-				print('SERVER: fileitems {}'.format(fileitems))
 				self.send(base64.b64encode(fileitems[1]))
 			elif (data=='FILESEND'):
 				print('reading in the recieved file..')

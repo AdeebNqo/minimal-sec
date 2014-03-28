@@ -227,9 +227,8 @@ class client(object):
 		#wait for encrypted details of file
 		edetails = self.sockt.recv(5000)
 		edetails = base64.b64decode(edetails)
-		print('server returned {}'.format(edetails))
-		#details = self.security.decrypt(edetails,'AES','thisisalocalmasterkey',AES.MODE_CBC)
-		return edetails
+		details = self.security.decrypt(edetails,'AES','thisisalocalmasterkey',AES.MODE_CBC)
+		return details
 	def interface(self):
 		inputv = ''			
 		while (inputv!='q'):
