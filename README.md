@@ -24,7 +24,7 @@ Practical for securing communications between server and client.
 - [ ] cleanup file storage to be able to push folders in server
 - [X] keyexchange between client and server for encrypting files
 - [X] Verify correctness of padding scheme in security
-- [ ] support long body in email
+- [X] support long body in email
 - [ ] initialisation vector in security.encrypt() only supports AES block sizes
 
 ##Deprecated

@@ -29,6 +29,7 @@ from email.mime.text import MIMEText
 from security import security
 import subprocess
 from Crypto.Hash import SHA
+import readline #for capturing key combinations in email sending
 
 blocksize = 16 #Block size for the encryption
 
@@ -146,21 +147,34 @@ class client(object):
 	def send(self,data):
 		self.sockt.sendall(data)
 	def sendEmail(self):
+		readline.parse_and_bind('C-k: "@\n"')
 		print('--\temail menu\t--')
-
-		to = raw_input('recipient: ')
-		From = raw_input('sender: ')
+		to = raw_input('Recipient: ')
+		From = raw_input('Sender: ')
 		ccList = []
-		ccCode = 1
+		ccCode = 2
 		while(ccCode!=1):
-			ccCode = input('CC someone?\n1.Yes <Return if not>')
+			ccCode = raw_input('CC someone?\n1.Yes <Return for no>')
 			if (ccCode==1):
-				ccList.append(raw_input('cc address'))
+				ccList.append(raw_input('CC address:'))
+			else:
+				break
 		subject = raw_input('email subject: ')
-		data = raw_input("msg:\n")
+		emailbody = []
+		line ="@"
+		print('Email body (Ctrl-K for line break, ignore generated @ symbol):')
+		while(line and line[-1]=='@'):
+			line = raw_input('')
+			if line.endswith('@'):
+				emailbody.append(line[:-1])
+			else:
+				emailbody.append(line)
+		data = '\n'.join(emailbody)
+		#
 		#step 1 : signing email
+		#
+		
 		emailbuffer = BIO.MemoryBuffer(data) #creating a buffer with the email data
-
 		# Instantiate an SMIME object; set it up; sign the buffer.
 		smime = SMIME.SMIME()
 		smime.load_key(self.keyconfig.getConfigItem(Key.EmailKey), self.keyconfig.getConfigItem(Key.EmailCert))
