@@ -17,6 +17,7 @@ import base64
 import sys
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
+from Crypto.Signature import PKCS1_v1_5 as pkc
 from security import security
 from Crypto.Cipher import AES
 from Crypto import Random
@@ -27,6 +28,7 @@ import smtplib
 from email.mime.text import MIMEText
 from security import security
 import subprocess
+from Crypto.Hash import SHA
 
 blocksize = 16 #Block size for the encryption
 
@@ -125,12 +127,12 @@ class client(object):
 		DETAILS = line[dashpos+1:]
 		iv = Random.new().read(AES.block_size);
 		#Compiuting hash of id and details
-		hashX = self.security.hash('{0} {1}'.format(ID,DETAILS),'sha512')
-		#Encrypting hash of id and details with owners private key
+		hashX = SHA.new('{0} {1}'.format(ID,DETAILS))
+		#Signing hash of id and details with owners private key
 		privkey = open(self.privatekeylocation,'rb').read()
 		rsakey = RSA.importKey(privkey)
-		rsakey = PKCS1_v1_5.new(rsakey)
-		signedHash = rsakey.encrypt(hashX)
+		signer = pkc.new(rsakey)
+		signedHash = signer.sign(hashX)
 		self.send('{0}\t{1}\t{2}'.format(ID ,base64.b64encode(self.security.encrypt(DETAILS,'AES', 'thisisakey', AES.MODE_CBC)),signedHash))
 		response = self.sockt.recv(1024)
 		if (response=='FILERECIEVED'):

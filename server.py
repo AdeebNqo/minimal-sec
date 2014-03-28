@@ -23,6 +23,8 @@ from keyconfig import Key
 import passphrase
 from security import security
 import subprocess
+from Crypto.Signature import PKCS1_v1_5 as pkc
+from Crypto.Hash import SHA
 
 registeredclients = {}
 connectedclients = {}
@@ -163,20 +165,15 @@ class sockethandler(threading.Thread):
 				#extracting hash from signed hash by decrypting with public key
 				pubkey = open(registeredclients[clientname],'rb').read()
 				rsakey = RSA.importKey(pubkey)
-				rsakey = PKCS1_v1_5.new(rsakey)
-				Hash = rsakey.decrypt(signedHash,-1)
+				verifier = pkc.new(rsakey)
 				#check if decryption is succesful
-				if (Hash!=-1):
-					HashX = self.security.hash('{0} {1}'.format(ID,details),'sha512')
-					if (Hash==HashX):
-						f = open('{0}/{1}.nqo'.format(dbdatadir,ID),'w+')
-						f.write(data)
-						f.close()
-						self.send('FILERECIEVED')
-						print('file saved.')
-					else:
-						self.send('FILECHANGED')
-						print('file changed')
+				Hash = True if verifier.verify(SHA.new('{0} {1}'.format(ID,details)),signedHash) else False
+				if (Hash):
+					f = open('{0}/{1}.nqo'.format(dbdatadir,ID),'w+')
+					f.write(data)
+					f.close()
+					self.send('FILERECIEVED')
+					print('file saved.')
 				else:
 					self.send('FILECHANGED')
 					print('file changed')
