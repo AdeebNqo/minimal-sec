@@ -60,7 +60,7 @@ class sockethandler(threading.Thread):
 		while 1:
 			print('waiting for data...')
 			data = self.connection.recv(1024).strip()
-			print('server received -{}-'.format(data))
+			#print('server received -{}-'.format(data))
 			if (data.startswith('CONNECT')):
 				print('client attempting to connect...')
 				clientname = data.split()[1]
@@ -102,14 +102,14 @@ class sockethandler(threading.Thread):
 					#print('RESULT: appended token and key {}'.format(authtoken))
 					#print('STATUS: sending result to server')
 					self.send(authtoken)
-					print('STATUS: sent authtoken')
+					#print('STATUS: sent authtoken')
 					
 					#
 					# Last step.
 					# Getting response from client and comparing nonces and tokens
 					#
 				
-					print('STATUS: waiting for client response...')
+					#print('STATUS: waiting for client response...')
 					#Retrieve response from client
 					cresponse = self.connection.recv(1024).strip()
 					#print('STATUS: client has responded. Now decoding response..')

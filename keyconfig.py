@@ -88,7 +88,7 @@ class KeyConfig():
 		configfile = open(self.keyfile,'rb')
 		self.config = pickle.load(configfile)
 		configfile.close()
-		print(self.config)
+		#print(self.config)
 	def getConfigItem(self,KeyOption):
 		if (KeyOption==Key.OwnPrivate):
 			return self.config['ownprivate']

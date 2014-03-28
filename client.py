@@ -116,7 +116,7 @@ class client(object):
 				cresponse = '{0} {1}'.format(EClientthreewaykey,Etokenpair)
 				#print('STATUS: sending {} to the server'.format(cresponse))
 				self.send(cresponse)
-				print('STATUS: done sending...')
+				#print('STATUS: done sending...')
 			else:
 				#could not decrypt server question thus cannot complete 3way handshake
 				raise Exception('Could not decode server response. 3 way handshake failed.')
@@ -124,7 +124,7 @@ class client(object):
 		line = File.readline()
 		dashpos = line.find('-') #Dash position
 		ID = line[0:dashpos].replace('ID','')
-		print('id is {}'.format(ID))
+		#print('id is {}'.format(ID))
 		DETAILS = line[dashpos+1:]
 		iv = Random.new().read(AES.block_size);
 		#Computing hash of id and details
@@ -134,10 +134,10 @@ class client(object):
 		rsakey = RSA.importKey(privkey)
 		signer = pkc.new(rsakey)
 		signedHash = base64.b64encode(signer.sign(hashX))
-		print('CLIENT: ID {}'.format(ID))
+		#print('CLIENT: ID {}'.format(ID))
 		edetails = base64.b64encode(self.security.encrypt(DETAILS,'AES', 'thisisalocalmasterkey', AES.MODE_CBC))
-		print('CLIENT: EDETAILS {}'.format(edetails))
-		print('CLIENT: SIGNEDHASH {}'.format(signedHash))
+		#print('CLIENT: EDETAILS {}'.format(edetails))
+		#print('CLIENT: SIGNEDHASH {}'.format(signedHash))
 		#sending data to server
 		self.send('{0} .\t. {1} .\t. {2}'.format(ID ,edetails, signedHash))
 		#waiting for file upload response
@@ -146,7 +146,7 @@ class client(object):
 			print('file stored safely...')
 		elif (response=='FILECHANGED'):
 			print('File has been corrupted. Server received altered file.')
-		print('server says {}'.format(response))
+		#print('server says {}'.format(response))
 	
 	def disconnect(self):
 		self.sockt.close()
@@ -219,11 +219,12 @@ class client(object):
 		print('closing email server connection...')
 		server.quit()
 	def retrieveFile(self,ID):
+		print('Retrieving details...')
 		self.send('FILERETRIEVE')
 		IDrequest  = self.sockt.recv(1024)
-		print('sending id..')
+		#print('sending id..')
 		self.send(ID)
-		print('waiting for edetails...')
+		#print('waiting for edetails...')
 		#wait for encrypted details of file
 		edetails = self.sockt.recv(5000)
 		if (edetails=='EXCEPTION'):
